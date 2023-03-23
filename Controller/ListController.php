@@ -1,0 +1,101 @@
+<?php
+
+namespace Flashmer\CommandSchedulerBundle\Controller;
+
+use Flashmer\CommandSchedulerBundle\Entity\ScheduledCommand;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+/**
+ * Class ListController.
+ *
+ * @author Julien Guyon <julienguyon@hotmail.com>
+ */
+class ListController extends AbstractBaseController
+{
+    private int $lockTimeout = 3600;
+    private LoggerInterface $logger;
+
+    public function setLockTimeout(int $lockTimeout): void
+    {
+        $this->lockTimeout = $lockTimeout;
+    }
+
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
+
+    public function indexAction(): Response
+    {
+        $scheduledCommands = $this->getDoctrineManager()->getRepository(
+            ScheduledCommand::class
+        )->findAll();
+        #)->findAllSortedByNextRuntime();
+
+        return $this->render(
+            '@FlashmerCommandScheduler/List/index.html.twig',
+            ['scheduledCommands' => $scheduledCommands]
+        );
+    }
+
+    public function removeAction($id): RedirectResponse
+    {
+        $entityManager = $this->getDoctrineManager();
+        $scheduledCommand = $entityManager->getRepository(ScheduledCommand::class)->find($id);
+        $entityManager->remove($scheduledCommand);
+        $entityManager->flush();
+
+        // Add a flash message and do a redirect to the list
+        $this->addFlash('success', $this->translator->trans('flash.deleted', [], 'FlashmerCommandScheduler'));
+
+        return $this->redirectToRoute('flashmer_command_scheduler_list');
+    }
+
+    /**
+     * Toggle enabled/disabled.
+     */
+    public function toggleAction($id): RedirectResponse
+    {
+        $scheduledCommand = $this->getDoctrineManager()->getRepository(ScheduledCommand::class)->find($id);
+        $scheduledCommand->setDisabled(!$scheduledCommand->isDisabled());
+        $this->getDoctrineManager()->flush();
+
+        return $this->redirectToRoute('flashmer_command_scheduler_list');
+    }
+
+    public function executeAction($id, Request $request): RedirectResponse
+    {
+        $scheduledCommand = $this->getDoctrineManager()->getRepository(ScheduledCommand::class)->find($id);
+        $scheduledCommand->setExecuteImmediately(true);
+        $this->getDoctrineManager()->flush();
+
+        // Add a flash message and do a redirect to the list
+        $this->addFlash('success', $this->translator->trans('flash.execute', ["%name%" => $scheduledCommand->getName()], 'FlashmerCommandScheduler'));
+
+        if ($request->query->has('referer')) {
+            return $this->redirect($request->getSchemeAndHttpHost().urldecode($request->query->get('referer')));
+        }
+
+        return $this->redirectToRoute('flashmer_command_scheduler_list');
+    }
+
+    public function unlockAction($id, Request $request): RedirectResponse
+    {
+        $scheduledCommand = $this->getDoctrineManager()->getRepository(ScheduledCommand::class)->find($id);
+        $scheduledCommand->setLocked(false);
+        $this->getDoctrineManager()->flush();
+
+        // Add a flash message and do a redirect to the list
+        $this->addFlash('success', $this->translator->trans('flash.unlocked', [], 'FlashmerCommandScheduler'));
+
+        if ($request->query->has('referer')) {
+            return $this->redirect($request->getSchemeAndHttpHost().urldecode($request->query->get('referer')));
+        }
+
+        return $this->redirectToRoute('flashmer_command_scheduler_list');
+    }
+}

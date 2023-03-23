@@ -1,0 +1,33 @@
+parameters:
+    editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
+
+    level: 6
+    paths:
+        - Command
+        - Controller
+        - DependencyInjection
+        - Entity
+        - Event
+        - EventSubscriber
+        - Form
+        - Notification
+        - Resources/config
+        - Service
+        - Validator
+        #- Tests
+
+    #https://phpstan.org/config-reference
+    excludePaths:
+        - %currentWorkingDirectory%/.github/*
+        - %currentWorkingDirectory%/build/*.php
+        - %currentWorkingDirectory%/vendor/*.php
+        - %currentWorkingDirectory%/Resources
+        - %currentWorkingDirectory%/Tests/app_test.php
+        - %currentWorkingDirectory%/Tests/App/AppKernel.php
+
+    ignoreErrors:
+
+
+#includes:
+    #- vendor/phpstan/phpstan-phpunit/extension.neon
+    #- vendor/phpstan/phpstan-phpunit/rules.neon

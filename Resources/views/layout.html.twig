@@ -1,0 +1,72 @@
+{% trans_default_domain 'FlashmerCommandScheduler' %}
+<!DOCTYPE html>
+<html lang="{{ app.request.attributes.get('_locale', 'en') }}">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Command Scheduler {% block title %}{% endblock title %}</title>
+    <link href="{{ asset('bundles/flashmercommandscheduler/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('bundles/flashmercommandscheduler/css/select2.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('bundles/flashmercommandscheduler/css/bootstrap-icons.css') }}" rel="stylesheet">
+    <link href="{{ asset('bundles/flashmercommandscheduler/css/datatables.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('bundles/flashmercommandscheduler/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('bundles/flashmercommandscheduler/css/custom.css') }}" rel="stylesheet">
+</head>
+<body id="flashmer">
+{% include '@FlashmerCommandScheduler/Navbar/navbar.html.twig' %}
+<div class="">
+    <div class="container-fluid" style="margin-top:30px; max-width: 1300px; margin-bottom: 50px;">
+        <div class="row">
+            <div class="col-md-12">
+
+                {# Succes flash messages #}
+                {% for flashMessage in app.session.flashbag.get('success') %}
+                    <div class="alert alert-success" role="alert">
+                        {{ flashMessage }}
+                    </div>
+                {% endfor %}
+
+                {# Errors flash messages #}
+                {% for flashMessage in app.session.flashbag.get('error') %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ flashMessage }}
+                    </div>
+                {% endfor %}
+
+                {% block content %}{% endblock content %}
+            </div>
+        </div>
+    </div>
+</div><!-- /container -->
+
+<script type="text/javascript" src="{{ asset('bundles/flashmercommandscheduler/js/jquery-3.6.0.slim.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('bundles/flashmercommandscheduler/js/jquery-migrate-3.3.2.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('bundles/flashmercommandscheduler/js/bootstrap.bundle.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('bundles/flashmercommandscheduler/js/bootstrap-confirmation.js') }}"></script>
+<script type="text/javascript" src="{{ asset('bundles/flashmercommandscheduler/js/select2.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('bundles/flashmercommandscheduler/js/datatables.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('bundles/flashmercommandscheduler/js/dataTables.bootstrap4.min.js') }}"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        // Enable bootstrap-confirmation (https://bootstrap-confirmation.js.org/)
+        $('[data-toggle=confirmation]').confirmation({
+            rootSelector: '[data-toggle=confirmation]',
+            container: 'body',
+            singleton: true,
+            popout: true,
+            placement: 'left',
+            btnOkClass: 'btn btn-danger',
+            btnCancelLabel: 'Cancel',
+            btnCancelClass: 'btn btn-secondary',
+        });
+    });
+
+    {% block javascript %}{% endblock javascript %}
+
+</script>
+</body>
+</html>
