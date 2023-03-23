@@ -78,7 +78,7 @@ class ScheduledCommand
     private bool $locked = false;
 
     #[ORM\Column]
-    private array $roles = ['ROLE_ADMIN', 'ROLE_USER'];
+    private array $roles = ['ROLE_ADMIN', 'ROLE_USER', 'ROLE_EDITOR', 'ROLE_MANAGER'];
 
     /**
      * Init new ScheduledCommand.
