@@ -56,6 +56,10 @@ class ScheduledCommand
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTime $lastExecution = null;
 
+    #[Assert\Type(DateTime::class)]
+    #[ORM\Column(type: Types::STRING, nullable: true)]
+    private ?string $lastDuration = null;
+
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $lastReturnCode = null;
 
@@ -307,6 +311,18 @@ class ScheduledCommand
     public function setRole(?string $role): ScheduledCommand
     {
         $this->role = $role;
+
+        return $this;
+    }
+
+    public function getLastDuration(): ?string
+    {
+        return $this->lastDuration;
+    }
+
+    public function setLastDuration(string $lastDuration): ScheduledCommand
+    {
+        $this->name = $lastDuration;
 
         return $this;
     }
