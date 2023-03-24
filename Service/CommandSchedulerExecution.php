@@ -229,7 +229,17 @@ class CommandSchedulerExecution
         // calculate duration
         $startDateTime = $scheduledCommand->getLastExecution();
         $dateDiff = $startDateTime->diff(new DateTime());
-        $scheduledCommand->setLastDuration($dateDiff->h.':'.$dateDiff->i.':'.$dateDiff->s);
+        if ($dateDiff->h == 0 && $dateDiff->i == 0) {
+            $lastDuration = $dateDiff->s.' sec.';
+        }
+        elseif ($dateDiff->h == 0 && $dateDiff->i != 0) {
+            $lastDuration = $dateDiff->i.' min.'.$dateDiff->s.' sec.';
+        }
+        else {
+            $lastDuration = $dateDiff->h.' h '.$dateDiff->i.' min.'.$dateDiff->s.' sec.'
+        }
+
+        $scheduledCommand->setLastDuration($lastDuration);
         $scheduledCommand->setLastReturnCode($result);
         $scheduledCommand->setLocked(false);
         $scheduledCommand->setExecuteImmediately(false);

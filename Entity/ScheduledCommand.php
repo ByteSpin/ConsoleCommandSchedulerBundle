@@ -322,7 +322,7 @@ class ScheduledCommand
 
     public function setLastDuration(string $lastDuration): ScheduledCommand
     {
-        $this->name = $lastDuration;
+        $this->lastDuration = $lastDuration;
 
         return $this;
     }
