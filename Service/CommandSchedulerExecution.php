@@ -250,7 +250,7 @@ class CommandSchedulerExecution
         // log data
         $scheduledCommandHistory = new ScheduledCommandHistory();
         $scheduledCommandHistory->setName($scheduledCommand->getName());
-        $scheduledCommandHistory->setCommand($scheduledCommand->getCommand());
+        $scheduledCommandHistory->setCommand($scheduledCommand->getCommand().' '.$scheduledCommand->getArguments());
         $scheduledCommandHistory->setDate($scheduledCommand->getLastExecution());
         $scheduledCommandHistory->setDuration($scheduledCommand->getLastDuration());
         $scheduledCommandHistory->setArguments($scheduledCommand->getArguments());
