@@ -6,6 +6,7 @@ use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 use Flashmer\CommandSchedulerBundle\Entity\ScheduledCommand;
+use Flashmer\CommandSchedulerBundle\Entity\ScheduledCommandHistory;
 use Flashmer\CommandSchedulerBundle\Event\SchedulerCommandPostExecutionEvent;
 use Flashmer\CommandSchedulerBundle\Event\SchedulerCommandPreExecutionEvent;
 use Psr\Log\LoggerInterface;
@@ -243,8 +244,20 @@ class CommandSchedulerExecution
         $scheduledCommand->setLastReturnCode($result);
         $scheduledCommand->setLocked(false);
         $scheduledCommand->setExecuteImmediately(false);
+
+        // log data
+        $scheduledCommandHistory = new ScheduledCommandHistory();
+        $scheduledCommandHistory->setName($scheduledCommand->getName());
+        $scheduledCommandHistory->setCommand($scheduledCommand->getCommand());
+        $scheduledCommandHistory->setDate($scheduledCommand->getLastExecution());
+        $scheduledCommandHistory->setDuration($scheduledCommand->getLastDuration());
+        $scheduledCommandHistory->setArguments($scheduledCommand->getArguments());
+        $scheduledCommandHistory->setReturnCode($scheduledCommand->getLastReturnCode());
+
         $this->em->persist($scheduledCommand);
+        $this->em->persist($scheduledCommandHistory);
         $this->em->flush();
+
 
         /*
          * This clear() is necessary to avoid conflict between commands and to be sure that none entity are managed
