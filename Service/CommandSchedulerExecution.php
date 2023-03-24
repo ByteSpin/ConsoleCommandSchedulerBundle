@@ -2,6 +2,7 @@
 
 namespace Flashmer\CommandSchedulerBundle\Service;
 
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 use Flashmer\CommandSchedulerBundle\Entity\ScheduledCommand;
@@ -225,6 +226,10 @@ class CommandSchedulerExecution
         /** @var ScheduledCommand $scheduledCommand */
         $scheduledCommand = $this->em->find(ScheduledCommand::class, $scheduledCommand);
 
+        // calculate duration
+        $startDateTime = $scheduledCommand->getLastExecution();
+        $dateDiff = $startDateTime->diff(new DateTime());
+        $scheduledCommand->setLastDuration($dateDiff->h.':'.$dateDiff->i.':'.$dateDiff->s);
         $scheduledCommand->setLastReturnCode($result);
         $scheduledCommand->setLocked(false);
         $scheduledCommand->setExecuteImmediately(false);
