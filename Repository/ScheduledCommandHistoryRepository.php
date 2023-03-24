@@ -1,14 +1,12 @@
 <?php
 
 namespace Flashmer\CommandSchedulerBundle\Repository;
-
-use DateTimeInterface;
+use Doctrine\ORM\EntityRepository;
 use Flashmer\CommandSchedulerBundle\Entity\ScheduledCommandHistory;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<ScheduledCommandHistory>
+ * @extends EntityRepository<ScheduledCommandHistory>
  *
  * @method ScheduledCommandHistory|null find($id, $lockMode = null, $lockVersion = null)
  * @method ScheduledCommandHistory|null findOneBy(array $criteria, array $orderBy = null)
@@ -16,14 +14,14 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method ScheduledCommandHistory[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 
-class CommandSchedulerHistoryRepository extends ServiceEntityRepository
+class ScheduledCommandHistoryRepository extends EntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, CommandSchedulerHistory::class);
+        parent::__construct($registry, ScheduledCommandHistoryRepository::class);
     }
 
-    public function save(CommandSchedulerHistory $entity, bool $flush = false): void
+    public function save(ScheduledCommandHistoryRepository $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -32,7 +30,7 @@ class CommandSchedulerHistoryRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(CommandSchedulerHistory $entity, bool $flush = false): void
+    public function remove(ScheduledCommandHistoryRepository $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
 

@@ -14,10 +14,12 @@ use Symfony\Component\Notifier\Recipient\RecipientInterface;
 
 class CronMonitorNotification extends Notification implements EmailNotificationInterface, ChatNotificationInterface
 {
+    const IMPORTANCE_MEDIUM = "MEDIUM";
+
     /**
      * @param ScheduledCommand[] $scheduledCommands
      */
-    public function __construct(private array $scheduledCommands, private string $subject)
+    public function __construct(private readonly array $scheduledCommands, private readonly string $subject)
     {
         parent::__construct(sprintf($subject, gethostname(), date('Y-m-d H:i:s')));
     }

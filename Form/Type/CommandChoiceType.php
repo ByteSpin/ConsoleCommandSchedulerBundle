@@ -2,6 +2,7 @@
 
 namespace Flashmer\CommandSchedulerBundle\Form\Type;
 
+use Exception;
 use Flashmer\CommandSchedulerBundle\Service\CommandParser;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -14,12 +15,12 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class CommandChoiceType extends AbstractType
 {
-    public function __construct(private CommandParser $commandParser)
+    public function __construct(private readonly CommandParser $commandParser)
     {
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function configureOptions(OptionsResolver $resolver): void
     {
