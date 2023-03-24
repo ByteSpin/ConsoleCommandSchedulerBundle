@@ -236,7 +236,7 @@ class CommandSchedulerExecution
             $lastDuration = $dateDiff->i.' min.'.$dateDiff->s.' sec.';
         }
         else {
-            $lastDuration = $dateDiff->h.' h '.$dateDiff->i.' min.'.$dateDiff->s.' sec.'
+            $lastDuration = $dateDiff->h.' h '.$dateDiff->i.' min.'.$dateDiff->s.' sec.';
         }
 
         $scheduledCommand->setLastDuration($lastDuration);
