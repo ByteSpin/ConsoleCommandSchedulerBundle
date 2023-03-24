@@ -78,7 +78,7 @@ class ScheduledCommand
     private bool $locked = false;
 
     #[ORM\Column]
-    private array $roles = ['ROLE_ADMIN', 'ROLE_USER', 'ROLE_EDITOR', 'ROLE_MANAGER'];
+    private ?string $role = null;
 
     /**
      * Init new ScheduledCommand.
@@ -299,18 +299,14 @@ class ScheduledCommand
         return null;
     }
 
-    public function getRoles(): array
+    public function getRole(): ?string
     {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
+        return $this->role;
     }
 
-    public function setRoles(array $roles): self
+    public function setRole(?string $role): ScheduledCommand
     {
-        $this->roles = $roles;
+        $this->role = $role;
 
         return $this;
     }
