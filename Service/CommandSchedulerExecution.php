@@ -3,13 +3,15 @@
 namespace Flashmer\CommandSchedulerBundle\Service;
 
 use DateTime;
-use Doctrine\ORM\EntityManagerInterface;
+use DateTimeImmutable;
 use Doctrine\Persistence\ObjectManager;
 use Flashmer\CommandSchedulerBundle\Entity\ScheduledCommand;
 use Flashmer\CommandSchedulerBundle\Entity\ScheduledCommandHistory;
 use Flashmer\CommandSchedulerBundle\Event\SchedulerCommandPostExecutionEvent;
 use Flashmer\CommandSchedulerBundle\Event\SchedulerCommandPreExecutionEvent;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\StringInput;
@@ -20,6 +22,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Console\Command\Command;
+use Throwable;
 
 class CommandSchedulerExecution
 {
@@ -30,13 +33,13 @@ class CommandSchedulerExecution
     private Application $application;
 
     public function __construct(
-        private KernelInterface          $kernel,
-        protected ParameterBagInterface  $parameterBag,
-        private ?LoggerInterface         $logger,
-        private EventDispatcherInterface $eventDispatcher,
-        private ManagerRegistry          $managerRegistry,
-        string                           $managerName
-        )
+        private readonly KernelInterface          $kernel,
+        protected ParameterBagInterface           $parameterBag,
+        private readonly ?LoggerInterface         $logger,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ManagerRegistry          $managerRegistry,
+        string                                    $managerName
+    )
     {
         $this->em = $managerRegistry->getManager($managerName);
         $this->logPath = $this->parameterBag->get('flashmer_command_scheduler.log_path');
@@ -50,7 +53,7 @@ class CommandSchedulerExecution
     {
         try {
             $command = $this->application->find($scheduledCommand->getCommand());
-        } catch (\InvalidArgumentException) {
+        } catch (InvalidArgumentException) {
 
             return null;
         }
@@ -61,7 +64,7 @@ class CommandSchedulerExecution
     private function getLog(
         ScheduledCommand $scheduledCommand,
         int $commandsVerbosity = OutputInterface::OUTPUT_NORMAL
-        ): OutputInterface
+    ): OutputInterface
     {
         // Use a StreamOutput or NullOutput to redirect write() and writeln() in a log file
         if (!$this->logPath || empty($scheduledCommand->getLogFile())) {
@@ -71,8 +74,7 @@ class CommandSchedulerExecution
             $logOutput = new StreamOutput(
                 fopen(
                     $this->logPath.$scheduledCommand->getLogFile(),
-                    'ab',
-                    false
+                    'ab'
                 ),
                 $commandsVerbosity
             );
@@ -138,7 +140,7 @@ class CommandSchedulerExecution
 
         $logOutput = $this->getLog($scheduledCommand, $commandsVerbosity);
 
-        $startRun = new \DateTimeImmutable();
+        $startRun = new DateTimeImmutable();
         $exception = null;
 
         // Execute command and get return code
@@ -148,19 +150,19 @@ class CommandSchedulerExecution
             $result = $command->run($input, $logOutput);
 
             $this->em->clear();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $exception = $e;
             $logOutput->writeln($e->getMessage());
             $logOutput->writeln($e->getTraceAsString());
             $result = -1;
         } finally {
-            $endRun = new \DateTimeImmutable();
+            $endRun = new DateTimeImmutable();
 
             $profiling = [
                 "startRun" => $startRun,
                 "endRun"   => $endRun,
                 "runtime" => $startRun->diff($endRun),
-                ];
+            ];
 
             $this->eventDispatcher->dispatch(new SchedulerCommandPostExecutionEvent($scheduledCommand, $result, $logOutput, $profiling, $exception));
         }
@@ -182,16 +184,16 @@ class CommandSchedulerExecution
             //$notLockedCommand will be locked for avoiding parallel calls:
             // http://dev.mysql.com/doc/refman/5.7/en/innodb-locking-reads.html
             if (null === $notLockedCommand) {
-                throw new \RuntimeException();
+                throw new RuntimeException();
             }
 
             $scheduledCommand = $notLockedCommand;
-            $scheduledCommand->setLastExecution(new \DateTime());
+            $scheduledCommand->setLastExecution(new DateTime());
             $scheduledCommand->setLocked(true);
             $this->em->persist($scheduledCommand);
             $this->em->flush();
             $this->em->getConnection()->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->em->getConnection()->rollBack();
             /*$this->output->writeln(
                 sprintf(
@@ -261,7 +263,7 @@ class CommandSchedulerExecution
 
         /*
          * This clear() is necessary to avoid conflict between commands and to be sure that none entity are managed
-         * before entering in a new command
+         * before entering a new command
          */
         $this->em->clear();
 

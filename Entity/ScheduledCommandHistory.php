@@ -2,11 +2,10 @@
 
 namespace Flashmer\CommandSchedulerBundle\Entity;
 
-use App\Repository\CommandSchedulerHistoryRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Flashmer\CommandSchedulerBundle\Repository\ScheduledCommandHistoryRepository;
+use DateTime;
 
 /**
  * https://www.doctrine-project.org/2021/05/24/orm2.9.html
@@ -18,26 +17,19 @@ class ScheduledCommandHistory
 {
     #[ORM\Id, ORM\Column(type: Types::INTEGER), ORM\GeneratedValue(strategy: 'AUTO')]
     private $id;
-    #[ORM\Version]
-    #[ORM\Column(type: Types::INTEGER)]
-    private int $version = 0;
 
-    #[Assert\NotBlank]
     #[ORM\Column(type: Types::STRING, length: 150, unique: true, nullable: false)]
     private string $name;
 
-    #[Assert\NotBlank]
     #[ORM\Column(type: Types::STRING, length: 200, nullable: false)]
     private string $command;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $arguments = null;
 
-    #[Assert\Type(DateTime::class)]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTime $date = null;
 
-    #[Assert\Type(DateTime::class)]
     #[ORM\Column(type: Types::STRING, nullable: true)]
     private ?string $duration = null;
 

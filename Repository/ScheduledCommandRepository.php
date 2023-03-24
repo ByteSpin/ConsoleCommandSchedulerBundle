@@ -3,11 +3,14 @@
 namespace Flashmer\CommandSchedulerBundle\Repository;
 
 use Cron\CronExpression;
+use DateInterval;
+use DateTime;
 use DateTimeInterface;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\TransactionRequiredException;
+use Exception;
 use Flashmer\CommandSchedulerBundle\Entity\ScheduledCommand;
 
 /**
@@ -40,15 +43,15 @@ class ScheduledCommandRepository extends EntityRepository
     /**
      * Find all commands ordered by next run time
      *
-     * @throws \Exception
+     * @throws Exception
      * @return ScheduledCommand[]|null
      */
     public function findAllSortedByNextRuntime(): ?array
     {
         $allCommands = $this->findAll();
         $commands = [];
-        $now = new \DateTime();
-        $future = (new \DateTime())->add(new \DateInterval("P2Y"));
+        $now = new DateTime();
+        $future = (new DateTime())->add(new DateInterval("P2Y"));
         $futureSort = $future->format(DateTimeInterface::ATOM);
 
         # execution is forced onetimes via isExecuteImmediately
@@ -62,7 +65,7 @@ class ScheduledCommandRepository extends EntityRepository
 
             if ($command->isExecuteImmediately()) {
 
-                $commands[] = ["order" => (new \DateTime())->format(DateTimeInterface::ATOM), "command" => $commands];
+                $commands[] = ["order" => (new DateTime())->format(DateTimeInterface::ATOM), "command" => $commands];
             } else {
                 $cron = new CronExpression($command->getCronExpression());
                 try {
@@ -73,8 +76,8 @@ class ScheduledCommandRepository extends EntityRepository
                     else
                     {$commands[] = ["order" => $futureSort, "command" => $command];}
 
-                } catch (\Exception $e) {
-                   $commands[] = ["order" => $futureSort, "command" => $command];
+                } catch (Exception $e) {
+                    $commands[] = ["order" => $futureSort, "command" => $command];
                 }
             }
         }
@@ -124,14 +127,14 @@ class ScheduledCommandRepository extends EntityRepository
     /**
      * Find all enabled commands that need to be executed ordered by priority.
      *
-     * @throws \Exception
+     * @throws Exception
      * @return ScheduledCommand[]|null
      */
     public function findCommandsToExecute(): ?array
     {
         $enabledCommands = $this->findEnabledCommand();
         $commands = [];
-        $now = new \DateTime();
+        $now = new DateTime();
 
         # Get commands which runtime is in the past or
         # execution is forced onetimes via isExecuteImmediately
@@ -146,7 +149,7 @@ class ScheduledCommandRepository extends EntityRepository
                     if ($nextRunDate < $now) {
                         $commands[] = $command;
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                 }
 
             }

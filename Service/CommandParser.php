@@ -3,12 +3,15 @@
 namespace Flashmer\CommandSchedulerBundle\Service;
 
 use Exception;
+use InvalidArgumentException;
+use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Throwable;
 
 /**
  * Class CommandParser
@@ -21,12 +24,12 @@ class CommandParser
      * @param string[] $excludedNamespaces
      * @param string[] $includedNamespaces
      */
-    public function __construct(private KernelInterface $kernel,
-        private array $excludedNamespaces = [],
-        private array $includedNamespaces = [])
+    public function __construct(private readonly KernelInterface $kernel,
+                                private array                                            $excludedNamespaces = [],
+                                private array                                            $includedNamespaces = [])
     {
         if (!$this->isNamespacingValid($excludedNamespaces, $includedNamespaces)) {
-            throw new \InvalidArgumentException('Cannot combine excludedNamespaces with includedNamespaces');
+            throw new InvalidArgumentException('Cannot combine excludedNamespaces with includedNamespaces');
         }
     }
 
@@ -40,9 +43,9 @@ class CommandParser
     public function isNamespacingValid(array $excludedNamespaces, array $includedNamespaces): bool
     {
         return !(
-                count($excludedNamespaces) > 0 &&
-                count($includedNamespaces) > 0
-                );
+            count($excludedNamespaces) > 0 &&
+            count($includedNamespaces) > 0
+        );
     }
 
 
@@ -92,9 +95,9 @@ class CommandParser
                 JSON_THROW_ON_ERROR
             );}
 
-            throw new \InvalidArgumentException('Only xml and json are allowed');
-        } catch (\Throwable) {
-            throw new \RuntimeException('Listing of commands could not be read');
+            throw new InvalidArgumentException('Only xml and json are allowed');
+        } catch (Throwable) {
+            throw new RuntimeException('Listing of commands could not be read');
         }
     }
 
@@ -108,7 +111,7 @@ class CommandParser
     public function getCommands(string $env="prod"): array
     {
         if (!$this->isNamespacingValid($this->excludedNamespaces, $this->includedNamespaces)) {
-            throw new \InvalidArgumentException('Cannot combine excludedNamespaces with includedNamespaces');
+            throw new InvalidArgumentException('Cannot combine excludedNamespaces with includedNamespaces');
         }
 
         return $this->extractCommands($this->getAvailableCommands("json", $env));
@@ -123,8 +126,8 @@ class CommandParser
      */
     public function getAllowedCommandDetails(string $env="prod"): array
     {
-       # var_dump($this->getCommands($env));
-       return $this->getCommandDetails($this->getCommands($env));
+        # var_dump($this->getCommands($env));
+        return $this->getCommandDetails($this->getCommands($env));
     }
 
 

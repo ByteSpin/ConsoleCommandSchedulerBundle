@@ -2,8 +2,10 @@
 
 namespace Flashmer\CommandSchedulerBundle\Fixtures\ORM;
 
+use DateTime;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use Exception;
 use Flashmer\CommandSchedulerBundle\Entity\ScheduledCommand;
 
 /**
@@ -22,7 +24,7 @@ class LoadScheduledCommandData implements FixtureInterface
     {
         $this->manager = $manager;
 
-        $now = new \DateTime();
+        $now = new DateTime();
         $today = clone $now;
         $beforeYesterday = $now->modify('-2 days');
 
@@ -37,38 +39,38 @@ class LoadScheduledCommandData implements FixtureInterface
      * Create a new ScheduledCommand in database.
      */
     protected function createScheduledCommand(
-        string $name,
-        string $command,
-        string $arguments,
-        string $cronExpression,
-        string $logFile,
-        int $priority = 0,
-        ?\DateTime $lastExecution = null,
-        bool $locked = false,
-        bool $disabled = false,
-        bool $executeNow = false,
-        ?int $lastReturnCode = null
+        string    $name,
+        string    $command,
+        string    $arguments,
+        string    $cronExpression,
+        string    $logFile,
+        int       $priority = 0,
+        ?DateTime $lastExecution = null,
+        bool      $locked = false,
+        bool      $disabled = false,
+        bool      $executeNow = false,
+        ?int      $lastReturnCode = null
     ): bool {
         $this->manager->getConnection()->beginTransaction();
         try {
             $scheduledCommand = new ScheduledCommand();
             $scheduledCommand
-            ->setName($name)
-            ->setCommand($command)
-            ->setArguments($arguments)
-            ->setCronExpression($cronExpression)
-            ->setLogFile($logFile)
-            ->setPriority($priority)
-            ->setLastExecution($lastExecution)
-            ->setLocked($locked)
-            ->setDisabled($disabled)
-            ->setLastReturnCode($lastReturnCode)
-            ->setExecuteImmediately($executeNow);
+                ->setName($name)
+                ->setCommand($command)
+                ->setArguments($arguments)
+                ->setCronExpression($cronExpression)
+                ->setLogFile($logFile)
+                ->setPriority($priority)
+                ->setLastExecution($lastExecution)
+                ->setLocked($locked)
+                ->setDisabled($disabled)
+                ->setLastReturnCode($lastReturnCode)
+                ->setExecuteImmediately($executeNow);
 
             $this->manager->persist($scheduledCommand);
             $this->manager->flush();
             $this->manager->getConnection()->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             #var_dump($e->getMessage());
             $this->manager->getConnection()->rollBack();
 

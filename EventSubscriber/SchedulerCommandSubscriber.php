@@ -21,8 +21,8 @@ class SchedulerCommandSubscriber implements EventSubscriberInterface
     public function __construct(protected LoggerInterface        $logger,
                                 protected EntityManagerInterface $em,
                                 protected NotifierInterface|null $notifier = null,
-                                private array                    $monitor_mail = [],
-                                private string                   $monitor_mail_subject = 'CronMonitor:')
+                                private readonly array           $monitor_mail = [],
+                                private readonly string          $monitor_mail_subject = 'CronMonitor:')
     {
     }
 

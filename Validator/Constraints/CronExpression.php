@@ -2,12 +2,13 @@
 
 namespace Flashmer\CommandSchedulerBundle\Validator\Constraints;
 
+use Attribute;
 use Symfony\Component\Validator\Constraint;
 
 /**
  * @Annotation
  */
-#[\Attribute] class CronExpression extends Constraint
+#[Attribute] class CronExpression extends Constraint
 {
     /**
      * Constraint error message.

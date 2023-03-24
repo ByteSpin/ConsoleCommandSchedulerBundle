@@ -3,6 +3,7 @@
 namespace Flashmer\CommandSchedulerBundle\Validator\Constraints;
 
 use Cron\CronExpression as CronExpressionLib;
+use InvalidArgumentException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -16,13 +17,13 @@ class CronExpressionValidator extends ConstraintValidator
             return;
         }
 
-       if(!($constraint instanceof CronExpression)){
-           return;
-       }
+        if(!($constraint instanceof CronExpression)){
+            return;
+        }
 
         try {
             new CronExpressionLib($value);
-        } catch (\InvalidArgumentException) {
+        } catch (InvalidArgumentException) {
 
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ string }}', $value)
