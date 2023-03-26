@@ -27,17 +27,17 @@ class ScheduledCommand
 
     // see https://www.doctrine-project.org/projects/doctrine-orm/en/2.9/reference/transactions-and-concurrency.html
     #[ORM\Version]
-    #[ORM\Column()]
-    private int $version = 0;
+    #[ORM\Column]
+    private ?int $version = 0;
 
     #[ORM\Column(name: "created_at", nullable: true)]
     private ?DateTime $createdAt = null;
 
     #[ORM\Column(length: 150, unique: true, nullable: false)]
-    private string $name;
+    private ?string $name;
 
     #[ORM\Column(length: 200, nullable: false)]
-    private string $command;
+    private ?string $command;
 
     #[ORM\Column(length: 200, nullable: true)]
     private ?string $arguments = null;
@@ -48,7 +48,7 @@ class ScheduledCommand
     #[Assert\NotBlank]
     #[AssertFlashmer\CronExpression]
     #[ORM\Column(length: 200, nullable: true)]
-    private string $cronExpression;
+    private ?string $cronExpression;
 
     #[ORM\Column(nullable: true)]
     private ?DateTime $lastExecution = null;
@@ -65,17 +65,17 @@ class ScheduledCommand
     private ?string $logFile = null;
 
     #[ORM\Column(nullable: false)]
-    private int $priority;
+    private ?int $priority;
 
     /** If true, command will be execute next time regardless cron expression. */
     #[ORM\Column(nullable: false)]
-    private bool $executeImmediately = false;
+    private ?bool $executeImmediately = false;
 
     #[ORM\Column(nullable: false)]
-    private bool $disabled = false;
+    private ?bool $disabled = false;
 
     #[ORM\Column(nullable: false)]
-    private bool $locked = false;
+    private ?bool $locked = false;
 
     #[ORM\Column]
     private ?string $role = null;
