@@ -236,10 +236,10 @@ class CommandSchedulerExecution
             $lastDuration = $dateDiff->s.' sec.';
         }
         elseif ($dateDiff->h == 0 && $dateDiff->i != 0) {
-            $lastDuration = $dateDiff->i.' min.'.$dateDiff->s.' sec.';
+            $lastDuration = $dateDiff->i.' min. '.$dateDiff->s.' sec.';
         }
         else {
-            $lastDuration = $dateDiff->h.' h '.$dateDiff->i.' min.'.$dateDiff->s.' sec.';
+            $lastDuration = $dateDiff->h.' h '.$dateDiff->i.' min. '.$dateDiff->s.' sec.';
         }
 
         $scheduledCommand->setLastDuration($lastDuration);
