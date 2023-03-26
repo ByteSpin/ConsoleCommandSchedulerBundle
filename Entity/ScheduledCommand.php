@@ -5,7 +5,6 @@ namespace Flashmer\CommandSchedulerBundle\Entity;
 use Carbon\Carbon;
 use Cron\CronExpression as CronExpressionLib;
 use DateTime;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Flashmer\CommandSchedulerBundle\Repository\ScheduledCommandRepository;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -21,27 +20,26 @@ use Flashmer\CommandSchedulerBundle\Validator\Constraints as AssertFlashmer;
 #[UniqueEntity(fields: ["name"])]
 class ScheduledCommand
 {
-    #[ORM\Id, ORM\Column(type: Types::INTEGER), ORM\GeneratedValue(strategy: 'AUTO')]
-    private $id; # temporary, otherwise EasyAdminBundle could not create new entries
-    #private ?int $id = null;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
     // see https://www.doctrine-project.org/projects/doctrine-orm/en/2.9/reference/transactions-and-concurrency.html
     #[ORM\Version]
-    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\Column()]
     private int $version = 0;
 
-    #[ORM\Column(name: "created_at", type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: "created_at", nullable: true)]
     private ?DateTime $createdAt = null;
 
-    #[Assert\NotBlank]
-    #[ORM\Column(type: Types::STRING, length: 150, unique: true, nullable: false)]
+    #[ORM\Column(length: 150, unique: true, nullable: false)]
     private string $name;
 
-    #[Assert\NotBlank]
-    #[ORM\Column(type: Types::STRING, length: 200, nullable: false)]
+    #[ORM\Column(length: 200, nullable: false)]
     private string $command;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[ORM\Column(length: 200, nullable: true)]
     private ?string $arguments = null;
 
     /**
@@ -49,36 +47,34 @@ class ScheduledCommand
      */
     #[Assert\NotBlank]
     #[AssertFlashmer\CronExpression]
-    #[ORM\Column(type: Types::STRING, length: 200, nullable: true)]
+    #[ORM\Column(length: 200, nullable: true)]
     private string $cronExpression;
 
-    #[Assert\Type(DateTime::class)]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(nullable: true)]
     private ?DateTime $lastExecution = null;
 
-    #[Assert\Type(DateTime::class)]
-    #[ORM\Column(type: Types::STRING, nullable: true)]
+
+    #[ORM\Column(nullable: true)]
     private ?string $lastDuration = null;
 
-    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    #[ORM\Column(nullable: true)]
     private ?int $lastReturnCode = null;
 
     /** Log's file name (without path). */
-    #[ORM\Column(type: Types::STRING, length: 150, nullable: true)]
+    #[ORM\Column(length: 150, nullable: true)]
     private ?string $logFile = null;
 
-    ##[Assert\Type(Integer::class)]
-    #[ORM\Column(type: Types::INTEGER, nullable: false)]
+    #[ORM\Column(nullable: false)]
     private int $priority;
 
     /** If true, command will be execute next time regardless cron expression. */
-    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    #[ORM\Column(nullable: false)]
     private bool $executeImmediately = false;
 
-    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    #[ORM\Column(nullable: false)]
     private bool $disabled = false;
 
-    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    #[ORM\Column(nullable: false)]
     private bool $locked = false;
 
     #[ORM\Column]
