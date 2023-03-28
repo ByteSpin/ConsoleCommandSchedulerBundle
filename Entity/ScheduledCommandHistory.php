@@ -16,7 +16,7 @@ use DateTime;
 class ScheduledCommandHistory
 {
     #[ORM\Id, ORM\Column(type: Types::INTEGER), ORM\GeneratedValue(strategy: 'AUTO')]
-    private $id;
+    private ?int $id;
 
     #[ORM\Column(type: Types::STRING, length: 150, unique: true, nullable: false)]
     private string $name;

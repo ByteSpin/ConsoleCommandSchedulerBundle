@@ -14,10 +14,11 @@ use Exception;
 use Flashmer\CommandSchedulerBundle\Entity\ScheduledCommand;
 
 /**
- * Class ScheduledCommandRepository.
+ * @extends EntityRepository<ScheduledCommand>
  *
- * @template-extends EntityRepository<ScheduledCommand>
- * @author  Julien Guyon <julienguyon@hotmail.com>
+ * @method ScheduledCommand|null find($id, $lockMode = null, $lockVersion = null)
+ * @method ScheduledCommand|null findOneBy(array $criteria, array $orderBy = null)
+ * @method ScheduledCommand[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class ScheduledCommandRepository extends EntityRepository
 {
