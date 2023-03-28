@@ -18,7 +18,7 @@ class ScheduledCommandHistory
     #[ORM\Id, ORM\Column(type: Types::INTEGER), ORM\GeneratedValue(strategy: 'AUTO')]
     private ?int $id;
 
-    #[ORM\Column(type: Types::STRING, length: 150, unique: true, nullable: false)]
+    #[ORM\Column(type: Types::STRING, length: 150, nullable: false)]
     private string $name;
 
     #[ORM\Column(type: Types::STRING, length: 200, nullable: false)]
