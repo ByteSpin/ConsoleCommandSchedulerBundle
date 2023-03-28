@@ -4,18 +4,15 @@ namespace Flashmer\CommandSchedulerBundle\Service;
 
 use DateTime;
 use DateTimeImmutable;
-use Doctrine\DBAL\Exception;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Exception\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\TransactionRequiredException;
+use Doctrine\Persistence\ObjectManager;
 use Flashmer\CommandSchedulerBundle\Entity\ScheduledCommand;
 use Flashmer\CommandSchedulerBundle\Entity\ScheduledCommandHistory;
 use Flashmer\CommandSchedulerBundle\Event\SchedulerCommandPostExecutionEvent;
 use Flashmer\CommandSchedulerBundle\Event\SchedulerCommandPreExecutionEvent;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -27,26 +24,26 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Console\Command\Command;
 use Throwable;
 
-
-
 class CommandSchedulerExecution
 {
     private string $env;
     private null|string $logPath;
-    private EntityManagerInterface $em;
+    #private EntityManagerInterface $em;
+    private ObjectManager $em;
     private Application $application;
-    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
-        KernelInterface          $kernel,
-        ParameterBagInterface    $parameterBag,
-        EventDispatcherInterface $eventDispatcher,
-        EntityManager            $entityManager
+        private readonly KernelInterface          $kernel,
+        protected ParameterBagInterface           $parameterBag,
+        private readonly ?LoggerInterface         $logger,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ManagerRegistry          $managerRegistry,
+        string                                    $managerName
     )
     {
-        $this->em = $entityManager;
-        $this->logPath = $parameterBag->get('command_scheduler.log_path');
-        $this->eventDispatcher = $eventDispatcher;
+        $this->em = $managerRegistry->getManager($managerName);
+        $this->logPath = $this->parameterBag->get('flashmer_command_scheduler.log_path');
+
         $this->application = new Application($kernel);
         $this->application->setAutoExit(false);
     }
@@ -94,6 +91,7 @@ class CommandSchedulerExecution
         if(!($command = $this->getCommand($scheduledCommand)))
         {
             $scheduledCommand->setLastReturnCode(-1);
+            #$this->output->writeln('<error>Cannot find '.$scheduledCommand->getCommand().'</error>');
         }
 
         return $command;
@@ -105,13 +103,19 @@ class CommandSchedulerExecution
      * - call the command with args and environment
      * - merge the definition of the commands
      * - Disable interactive mode
-     * @noinspection PhpInternalEntityUsedInspection
      */
     private function getInputCommand(ScheduledCommand $scheduledCommand, Command $command, string $env): StringInput
     {
         $inputCommand = new StringInput(
             $scheduledCommand->getCommand().' '.$scheduledCommand->getArguments().' --env='.$env
         );
+
+        # call the command with args and environment
+        /*$inputCommand = new ArrayInput(array_merge(
+            ['command' => $scheduledCommand->getCommand()],
+            $scheduledCommand->getArguments(),
+            ['--env' => $env],
+        ));*/
 
         $command->mergeApplicationDefinition();
         $inputCommand->bind($command->getDefinition());
@@ -138,11 +142,11 @@ class CommandSchedulerExecution
 
         $startRun = new DateTimeImmutable();
         $exception = null;
-        $result = null;
 
         // Execute command and get return code
         try {
             $this->eventDispatcher->dispatch(new SchedulerCommandPreExecutionEvent($scheduledCommand));
+
             $result = $command->run($input, $logOutput);
 
             $this->em->clear();
@@ -167,16 +171,15 @@ class CommandSchedulerExecution
     }
 
 
-    /**
-     * @throws Exception
-     */
     private function prepareExecution(ScheduledCommand $scheduledCommand): void
     {
         //reload command from database before every execution to avoid parallel execution
         $this->em->getConnection()->beginTransaction();
         try {
-            $scheduledCommandRepository = $this->em->getRepository(ScheduledCommand::class);
-            $notLockedCommand = $scheduledCommandRepository->getNotLockedCommand($scheduledCommand);
+            $notLockedCommand = $this
+                ->em
+                ->getRepository(ScheduledCommand::class)
+                ->getNotLockedCommand($scheduledCommand);
 
             //$notLockedCommand will be locked for avoiding parallel calls:
             // http://dev.mysql.com/doc/refman/5.7/en/innodb-locking-reads.html
@@ -190,22 +193,24 @@ class CommandSchedulerExecution
             $this->em->persist($scheduledCommand);
             $this->em->flush();
             $this->em->getConnection()->commit();
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             $this->em->getConnection()->rollBack();
+            /*$this->output->writeln(
+                sprintf(
+                    '<error>Command %s is locked %s</error>',
+                    $scheduledCommand->getCommand(),
+                    (empty($e->getMessage()) ? '' : sprintf('(%s)', $e->getMessage()))
+                )
+            );*/
+
             return;
         }
     }
 
-    /**
-     * @throws OptimisticLockException
-     * @throws ORMException
-     * @throws TransactionRequiredException
-     * @throws Exception
-     */
     public function executeCommand(
         ScheduledCommand $scheduledCommand,
         string $env,
-        string|int $commandsVerbosity = OutputInterface::VERBOSITY_NORMAL):int
+        string $commandsVerbosity = OutputInterface::VERBOSITY_NORMAL): int
     {
         $this->env = $env;
         $this->prepareExecution($scheduledCommand);
@@ -214,6 +219,11 @@ class CommandSchedulerExecution
         $scheduledCommand = $this->em->find(ScheduledCommand::class, $scheduledCommand);
 
         $result = $this->doExecution($scheduledCommand, $commandsVerbosity);
+
+        if (false === $this->em->isOpen()) {
+            #$this->output->writeln('<comment>Entity manager closed by the last command.</comment>');
+            $this->em = $this->em->getConnection();
+        }
 
         // Reactivate the command in DB
         /** @var ScheduledCommand $scheduledCommand */
@@ -245,20 +255,16 @@ class CommandSchedulerExecution
         $scheduledCommandHistory->setDuration($scheduledCommand->getLastDuration());
         $scheduledCommandHistory->setReturnCode($scheduledCommand->getLastReturnCode());
 
-        try {
-            $this->em->persist($scheduledCommand);
-            $this->em->persist($scheduledCommandHistory);
-            $this->em->flush();
+        $this->em->persist($scheduledCommand);
+        $this->em->persist($scheduledCommandHistory);
+        $this->em->flush();
 
-            /*
-             * This clear() is necessary to avoid conflict between commands and to be sure that none entity are managed
-             * before entering a new command
-             */
-            $this->em->clear();
-        }
-        catch (Throwable $e) {
-            throw new Exception($e->getMessage());
-        }
+
+        /*
+         * This clear() is necessary to avoid conflict between commands and to be sure that none entity are managed
+         * before entering a new command
+         */
+        $this->em->clear();
 
         unset($command);
         gc_collect_cycles();
