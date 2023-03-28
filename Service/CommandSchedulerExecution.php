@@ -42,7 +42,7 @@ class CommandSchedulerExecution
     )
     {
         $this->em = $managerRegistry->getManager($managerName);
-        $this->logPath = $this->parameterBag->get('flashmer_command_scheduler.log_path');
+        $this->logPath = $this->parameterBag->get('command_scheduler.log_path');
 
         $this->application = new Application($kernel);
         $this->application->setAutoExit(false);
