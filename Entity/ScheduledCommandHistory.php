@@ -24,9 +24,6 @@ class ScheduledCommandHistory
     #[ORM\Column(type: Types::STRING, length: 200, nullable: false)]
     private string $command;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $arguments = null;
-
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTime $date = null;
 
@@ -84,20 +81,6 @@ class ScheduledCommandHistory
 
         return $this;
     }
-
-    public function getArguments(): ?string
-    {
-        return $this->arguments;
-    }
-
-    public function setArguments(?string $arguments): ScheduledCommandHistory
-    {
-        $this->arguments = $arguments;
-
-        return $this;
-    }
-
-
 
     public function getDate(): ?DateTime
     {
