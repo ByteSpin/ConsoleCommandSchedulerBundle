@@ -253,7 +253,6 @@ class CommandSchedulerExecution
         $scheduledCommandHistory->setCommand($scheduledCommand->getCommand().' '.$scheduledCommand->getArguments());
         $scheduledCommandHistory->setDate($scheduledCommand->getLastExecution());
         $scheduledCommandHistory->setDuration($scheduledCommand->getLastDuration());
-        $scheduledCommandHistory->setArguments($scheduledCommand->getArguments());
         $scheduledCommandHistory->setReturnCode($scheduledCommand->getLastReturnCode());
 
         $this->em->persist($scheduledCommand);
