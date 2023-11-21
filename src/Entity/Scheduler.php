@@ -1,0 +1,208 @@
+<?php
+
+/**
+ * Copyright (c) 2023 Greg LAMY <greg@bytespin.net>
+ *
+ * This project is hosted on GitHub at:
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *
+ * This bundle was originally developed as part of an ETL project.
+ *
+ * ByteSpin/ConsoleCommandSchedulerBundle is a Symfony 6.3 simple bundle that allows you to schedule console commands easily:
+ * - Use the latest messenger/scheduler Symfony 6.3+ components,
+ * - Log all console commands data (last execution time, duration, return code) in database and log file,
+ * - An admin interface is available with the help of EasyCorp/EasyAdmin bundle
+ */
+
+namespace ByteSpin\ConsoleCommandSchedulerBundle\Entity;
+
+use ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: SchedulerRepository::class)]
+class Scheduler
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $command = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $arguments = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $execution_type = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $frequency = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $execution_from_date = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $execution_from_time = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $execution_until_date = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $execution_until_time = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $disabled = false;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getCommand(): ?string
+    {
+        return $this->command;
+    }
+
+    public function setCommand(string $command): static
+    {
+        $this->command = $command;
+
+        return $this;
+    }
+
+    public function getArguments(): ?string
+    {
+        return $this->arguments;
+    }
+
+    public function setArguments(string $arguments): static
+    {
+        $this->arguments = $arguments;
+
+        return $this;
+    }
+
+    public function getExecutionType(): ?string
+    {
+        return $this->execution_type;
+    }
+
+    public function setExecutionType(string $execution_type): static
+    {
+        $this->execution_type = $execution_type;
+
+        return $this;
+    }
+
+    public function getFrequency(): ?string
+    {
+        return $this->frequency;
+    }
+
+    public function setFrequency(?string $frequency): static
+    {
+        $this->frequency = $frequency;
+
+        return $this;
+    }
+
+    public function getExecutionFromDate(): ?\DateTimeInterface
+    {
+        if (empty($this->execution_from_date)) {
+            return null;
+        }
+
+        $date = \DateTime::createFromFormat('Y-m-d', $this->execution_from_date);
+        return $date ?: null;
+
+    }
+
+    public function setExecutionFromDate($execution_from_date): static
+    {
+        if ($execution_from_date instanceof \DateTimeInterface) {
+            $this->execution_from_date = $execution_from_date->format('Y-m-d');
+        } else {
+            $this->execution_from_date = $execution_from_date;
+        }
+        return $this;
+    }
+
+    public function getExecutionFromTime(): ?\DateTimeInterface
+    {
+        if (empty($this->execution_from_time)) {
+            return null;
+        }
+
+        $time = \DateTime::createFromFormat('H:i', $this->execution_from_time);
+        return $time ?: null;
+    }
+
+    public function setExecutionFromTime($execution_from_time): static
+    {
+        if ($execution_from_time instanceof \DateTimeInterface) {
+            $this->execution_from_time = $execution_from_time->format('H:i');
+        } else {
+            $this->execution_from_time = $execution_from_time;
+        }
+
+        return $this;
+    }
+
+    public function getExecutionUntilDate(): ?\DateTimeInterface
+    {
+        if (empty($this->execution_until_date)) {
+            return null;
+        }
+
+        $date = \DateTime::createFromFormat('Y-m-d', $this->execution_until_date);
+        return $date ?: null;
+    }
+
+    public function setExecutionUntilDate($execution_until_date): static
+    {
+        if ($execution_until_date instanceof \DateTimeInterface) {
+            $this->execution_until_date = $execution_until_date->format('Y-m-d');
+        } else {
+            $this->execution_until_date = $execution_until_date;
+        }
+        return $this;
+    }
+
+    public function getExecutionUntilTime(): ?\DateTimeInterface
+    {
+        if (empty($this->execution_until_time)) {
+            return null;
+        }
+
+        $time = \DateTime::createFromFormat('H:i', $this->execution_until_time);
+        return $time ?: null;
+    }
+
+    public function setExecutionUntilTime($execution_until_time): static
+    {
+        if ($execution_until_time instanceof \DateTimeInterface) {
+            $this->execution_until_time = $execution_until_time->format('H:i');
+        } else {
+            $this->execution_until_time = $execution_until_time;
+        }
+        return $this;
+    }
+
+    public function isDisabled(): ?bool
+    {
+        return $this->disabled;
+    }
+
+    public function getDisabled(): ?bool
+    {
+        return $this->disabled;
+    }
+
+    public function setDisabled(bool $disabled): static
+    {
+        $this->disabled = $disabled;
+
+        return $this;
+    }
+}

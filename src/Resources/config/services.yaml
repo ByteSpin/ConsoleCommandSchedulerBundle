@@ -1,0 +1,53 @@
+services:
+    ByteSpin\ConsoleCommandSchedulerBundle\Controller\Admin\SchedulerCrudController:
+        autowire: true
+        autoconfigure: true
+        public: false
+        tags: [ 'controller.service_arguments' ]
+        arguments:
+            $consoleCommandProvider: '@ByteSpin\ConsoleCommandSchedulerBundle\Provider\ConsoleCommandProvider'
+    ByteSpin\ConsoleCommandSchedulerBundle\Controller\Admin\SchedulerLogCrudController:
+        autowire: true
+        autoconfigure: true
+        public: false
+        tags: ['controller.service_arguments']
+    ByteSpin\ConsoleCommandSchedulerBundle\Provider\ConsoleCommandProvider:
+        autowire: true
+        autoconfigure: true
+        public: false
+        tags: [ 'controller.service_arguments' ]
+        arguments:
+            $kernel: '@Symfony\Component\HttpKernel\KernelInterface'
+    ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository:
+        autowire: true
+        autoconfigure: true
+        public: false
+        tags: [ 'controller.service_arguments' ]
+    ByteSpin\ConsoleCommandSchedulerBundle\Scheduler\ConsoleJobsScheduler:
+        autowire: true
+        autoconfigure: true
+        public: false
+        tags: [ 'controller.service_arguments' ]
+        arguments:
+            $schedulerRepository: '@ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository'
+    ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber\ScheduledConsoleCommandEventSubscriber:
+        autowire: true
+        autoconfigure: true
+        public: false
+        tags: [ 'controller.service_arguments' ]
+        arguments:
+            $entityManager: '@Doctrine\ORM\EntityManagerInterface'
+    ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber\SchedulerEasyAdminSubscriber:
+        autowire: true
+        autoconfigure: true
+        public: false
+        tags: [ 'controller.service_arguments' ]
+    ByteSpin\ConsoleCommandSchedulerBundle\MessageHandler\ExecuteConsoleCommandHandler:
+        autowire: true
+        autoconfigure: true
+        public: false
+        tags: [ 'controller.service_arguments' ]
+        arguments:
+            $eventDispatcher: '@Symfony\Component\EventDispatcher\EventDispatcherInterface'
+
+
