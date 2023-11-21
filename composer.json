@@ -2,6 +2,7 @@
   "name": "bytespin/console-command-scheduler-bundle",
   "description": "Provides easy scheduling for symfony console commands using latest Symfony messenger/scheduler components",
   "homepage": "https://github.com/ByteSpin/ConsoleCommandSchedulerBundle",
+  "keywords": ["Symfony", "symfony/scheduler","scheduler", "console", "command", "easyadmin"],
   "type": "symfony-bundle",
   "license": "MIT",
   "authors": [
