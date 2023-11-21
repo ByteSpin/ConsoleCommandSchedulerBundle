@@ -31,6 +31,7 @@ First install the bundle:
 composer require bytespin/console-commande-scheduler-bundle
 ```
 
+
 Then updates the database schema:
 ```
 php bin/console doctrine:schema:update --force
