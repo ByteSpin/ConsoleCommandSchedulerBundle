@@ -87,14 +87,17 @@ The administration interface provides two sections:
       ![Edit Console Command Scheduler section](docs/images/console_command_edit.png)
       
       - **Disabled**: if checked, the Console Command will be ignored by the scheduler 
-      - **Command**: this field list all available console commands defined in your symfony project
+      - **Command**: this field lists all available console commands defined in your symfony project
       - **Arguments**: provide any console command arguments if needed, separated by a space, as if you were typing them on the command line
       - **Type**: here you select one of the two symfony/scheduler supported command type 
         - 'Frequency' will generate a trigger of the RecurringMessage::every form,
         - 'Cron' = will generate a trigger of the RecurringMessage::cron form
-      - **From Date, From Time, Until Date, Until Time** are used to generate the trigger 
+      - **Frequency**: here you type the desired frequency
+        - If Type is 'Frequency' ; for example '10 seconds', '1 day', 'first monday of next month' (refer to the doc)
+        - If Type is 'Cron' ; use any cron expression
+      - **From Date, From Time, Until Date, Until Time** are used to generate the trigger. They are ignored in case of 'Cron' Type. 
       - **Log File**: you can provide the log file name desired for the current command.
-        - Don't provide the full path, only the log filename.
+        - Please note that you must not provide the full path, only the log filename.
         - If not provided, a default %env%_scheduler.log is created.
  
 
