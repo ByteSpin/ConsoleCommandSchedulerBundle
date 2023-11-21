@@ -22,7 +22,11 @@ class SchedulerEasyAdminSubscriber implements EventSubscriber
 {
     public function getSubscribedEvents(): array
     {
-        return [Events::prePersist, Events::preUpdate];
+        return [
+            Events::prePersist,
+            Events::preUpdate,
+            Events::postLoad
+        ];
     }
 
     public function prePersist(LifecycleEventArgs $args): void
@@ -33,29 +37,6 @@ class SchedulerEasyAdminSubscriber implements EventSubscriber
     public function preUpdate(LifecycleEventArgs $args): void
     {
         $this->transformDateTimeToString($args);
-    }
-
-    private function transformDateTimeToString(LifecycleEventArgs $args): void
-    {
-        $entity = $args->getObject();
-        if (!$entity instanceof Scheduler) {
-            return;
-        }
-
-        if ($entity->getExecutionFromTime() instanceof \DateTimeInterface) {
-            $entity->setExecutionFromTime($entity->getExecutionFromTime()->format('H:i'));
-        }
-        if ($entity->getExecutionFromDate() instanceof \DateTimeInterface) {
-            $entity->setExecutionFromDate($entity->getExecutionFromDate()->format('Y-m-d'));
-
-        }
-        if ($entity->getExecutionUntilTime() instanceof \DateTimeInterface) {
-            $entity->setExecutionUntilTime($entity->getExecutionUntilTime()->format('H:i'));
-        }
-        if ($entity->getExecutionUntilDate() instanceof \DateTimeInterface) {
-            $entity->setExecutionUntilDate($entity->getExecutionUntilDate()->format('Y-m-d'));
-        }
-
     }
 
     public function postLoad(LifecycleEventArgs $args): void
@@ -92,7 +73,28 @@ class SchedulerEasyAdminSubscriber implements EventSubscriber
                 $entity->setExecutionUntilTime($time);
             }
         }
+    }
 
+    private function transformDateTimeToString(LifecycleEventArgs $args): void
+    {
+        $entity = $args->getObject();
+        if (!$entity instanceof Scheduler) {
+            return;
+        }
+
+        if ($entity->getExecutionFromTime() instanceof \DateTimeInterface) {
+            $entity->setExecutionFromTime($entity->getExecutionFromTime()->format('H:i'));
+        }
+        if ($entity->getExecutionFromDate() instanceof \DateTimeInterface) {
+            $entity->setExecutionFromDate($entity->getExecutionFromDate()->format('Y-m-d'));
+
+        }
+        if ($entity->getExecutionUntilTime() instanceof \DateTimeInterface) {
+            $entity->setExecutionUntilTime($entity->getExecutionUntilTime()->format('H:i'));
+        }
+        if ($entity->getExecutionUntilDate() instanceof \DateTimeInterface) {
+            $entity->setExecutionUntilDate($entity->getExecutionUntilDate()->format('Y-m-d'));
+        }
 
     }
 }
