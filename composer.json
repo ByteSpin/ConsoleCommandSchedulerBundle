@@ -11,6 +11,12 @@
       "email": "greg@bytespin.net"
     }
   ],
+  "extra": {
+    "branch-alias": {
+      "dev-develop": "1.0.x-dev",
+      "dev-master": "1.0.1"
+    }
+  },
   "autoload": {
     "psr-4": {
       "ByteSpin\\ConsoleCommandSchedulerBundle\\": "src/"
