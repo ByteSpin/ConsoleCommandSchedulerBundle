@@ -22,6 +22,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 #[AsMessageHandler]
@@ -58,39 +59,46 @@ final readonly class ExecuteConsoleCommandHandler
         $start = microtime(true);
         $dateTime = new DateTime();
 
-        $process->start();
+        try {
+            $process->start();
 
-        foreach ($process as $type => $data) {
-            if ($process::OUT === $type) {
-                file_put_contents($logFile, $data, FILE_APPEND);
-            } else { // $process::ERR === $type
-                file_put_contents($logFile, $data, FILE_APPEND);
+            foreach ($process as $type => $data) {
+                // keep common parts for further use
+                // distinguish error and standard log?
+                if ($process::OUT === $type) {
+                    file_put_contents($logFile, $data, FILE_APPEND);
+                } else { // $process::ERR === $type
+                    file_put_contents($logFile, $data, FILE_APPEND);
+                }
             }
+
+            $process->wait();
+
+            // duration
+            $duration = round((microtime(true) - $start), 2);
+
+            // dispatch execution message
+            $message = new LogConsoleCommand(
+                $message->command,
+                $message->commandArguments,
+                $dateTime,
+                $duration,
+                $process->getExitCode(),
+            );
+
+            $this->eventDispatcher->dispatch(new GenericEvent($message, [
+            ]), 'log.scheduled.console.command');
+
+
+            if ($process->getExitCode() === 0) {
+
+                file_put_contents($logFile, "Command executed successfully\n", FILE_APPEND);
+            } else {
+                file_put_contents($logFile, "Command failure: " . $process->getExitCode() . "\n", FILE_APPEND);
+            }
+        } catch (ProcessFailedException $e) {
+            file_put_contents($logFile, "Command failure: " . $e->getMessage() . "\n", FILE_APPEND);
         }
 
-        $process->wait();
-
-        // duration
-        $duration = round((microtime(true) - $start), 2);
-
-        // dispatch execution message
-        $message = new LogConsoleCommand(
-            $message->command,
-            $message->commandArguments,
-            $dateTime,
-            $duration,
-            $process->getExitCode(),
-        );
-
-        $this->eventDispatcher->dispatch(new GenericEvent($message, [
-        ]), 'log.scheduled.console.command');
-
-
-        if ($process->getExitCode() === 0) {
-
-            file_put_contents($logFile, "Command executed successfully\n", FILE_APPEND);
-        } else {
-            file_put_contents($logFile, "Command failure: " . $process->getExitCode() . "\n", FILE_APPEND);
-        }
     }
 }
