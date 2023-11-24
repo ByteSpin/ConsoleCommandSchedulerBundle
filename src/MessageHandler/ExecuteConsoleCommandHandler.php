@@ -90,12 +90,12 @@ final readonly class ExecuteConsoleCommandHandler
             $this->eventDispatcher->dispatch(new GenericEvent($message, [
             ]), 'log.scheduled.console.command');
 
+            $messageLog = $message->command . ' ' . implode(' ', $message->commandArguments);
 
             if ($process->getExitCode() === 0) {
-
-                file_put_contents($logFile, "Command '. $message->command . ' ' . implode(' ', $message->commandArguments) .' executed successfully in ' . $duration . ' seconds\n", FILE_APPEND);
+                file_put_contents($logFile, "Command '. $messageLog .' executed successfully in ' . $duration . ' seconds\n", FILE_APPEND);
             } else {
-                file_put_contents($logFile, "Command '. $message->command . ' ' . implode(' ', $message->commandArguments) .' failure: " . $process->getExitCode() . "\n", FILE_APPEND);
+                file_put_contents($logFile, "Command '. $messageLog .' failure: " . $process->getExitCode() . "\n", FILE_APPEND);
             }
         } catch (ProcessFailedException $e) {
             file_put_contents($logFile, "Command failure: " . $e->getMessage() . "\n", FILE_APPEND);
