@@ -41,6 +41,7 @@ Updating the bundle
 -------------------
 
 For now, the bundle still lacks a custom recipe to manage database schema upgrade when needed.
+
 **Do not forget to update the database schema when updating the bundle**
 
 
