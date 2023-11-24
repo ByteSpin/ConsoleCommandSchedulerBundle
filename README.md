@@ -27,15 +27,22 @@ Requirements
 Installation
 ------------
 
-1. First install the bundle:
+1.First install the bundle:
 ```
 composer require bytespin/console-commande-scheduler-bundle
 ```
 
-2. Then updates the database schema:
+2.Then updates the database schema:
 ```
 php bin/console doctrine:schema:update --force
 ```
+
+Updating the bundle
+-------------------
+
+For now, the bundle still lacks a custom recipe to manage database schema upgrade when needed.
+**Do not forget to update the database schema when updating the bundle**
+
 
 Manual bundle registration
 --------------------------
