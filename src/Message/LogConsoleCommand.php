@@ -26,6 +26,7 @@ final readonly class LogConsoleCommand
         public DateTimeInterface|null $start = new DateTime(),
         public float $duration = 0,
         public int|null $return_code = null,
+        public string|null $logFile = null,
     ) {
     }
 }

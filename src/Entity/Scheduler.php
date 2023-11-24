@@ -51,6 +51,9 @@ class Scheduler
     #[ORM\Column(nullable: true)]
     private ?bool $disabled = false;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $log_file = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -202,4 +205,16 @@ class Scheduler
 
         return $this;
     }
+
+    public function getLogFile(): ?string
+    {
+        return $this->log_file;
+    }
+
+    public function setLogFile(?string $log_file): void
+    {
+        $this->log_file = $log_file;
+    }
+
+
 }
