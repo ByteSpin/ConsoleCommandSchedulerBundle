@@ -7,3 +7,5 @@
 ### Fixed
 - Disabled the timeout for console command process to allow the process to run indefinitely without premature termination, addressing issues with long-running operations.
 
+### Improved
+- Updated the `README.md` to include instructions for manual bundle registration in `bundles.php` for users not utilizing Symfony Flex.
