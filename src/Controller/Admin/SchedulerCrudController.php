@@ -13,24 +13,26 @@
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Controller\Admin;
 
+use AllowDynamicProperties;
+use ByteSpin\ConsoleCommandSchedulerBundle\Provider\BundleVersionProvider;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TimeField;
 use Exception;
 use ByteSpin\ConsoleCommandSchedulerBundle\Entity\Scheduler;
-use ByteSpin\ConsoleCommandSchedulerBundle\Form\Type\CommandChoiceType;
 use ByteSpin\ConsoleCommandSchedulerBundle\Provider\ConsoleCommandProvider;
+use Psr\Cache\InvalidArgumentException;
 
-class SchedulerCrudController extends AbstractCrudController
+#[AllowDynamicProperties] class SchedulerCrudController extends AbstractCrudController
 {
     public function __construct(
         private readonly ConsoleCommandProvider $consoleCommandProvider,
+        private readonly BundleVersionProvider $bundleVersionProvider,
     ) {
     }
 
@@ -39,11 +41,15 @@ class SchedulerCrudController extends AbstractCrudController
         return Scheduler::class;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
             ->setEntityLabelInSingular('Console Command')
-            ->setEntityLabelInPlural('Console Commands');
+            ->setEntityLabelInPlural('Console Commands')
+            ->setHelp('index', 'Bundle version ' . $this->bundleVersionProvider->getBundleVersion());
     }
 
 
@@ -54,21 +60,21 @@ class SchedulerCrudController extends AbstractCrudController
     {
 
         return [
-        IdField::new('id', 'ID')->hideOnForm()->setSortable(false)->hideOnIndex(),
-        ChoiceField::new('command')->setChoices($this->consoleCommandProvider->listConsoleCommands()),
-        TextField::new('arguments'),
-        ChoiceField::new('execution_type', 'Type')->setChoices([
-            'Frequency' => 'every',
-            'Cron' => 'cron',
-        ]),
-        TextField::new('frequency'),
-        DateField::new('execution_from_date')->setEmptyData('')->setFormat('yyyy-MM-dd')->setLabel('From Date'),
-        TimeField::new('execution_from_time')->setEmptyData('')->setFormat('HH:mm')->setLabel('From Time'),
-        DateField::new('execution_until_date')->setEmptyData('')->setFormat('yyyy-MM-dd')->setLabel('Until Date'),
-        TimeField::new('execution_until_time')->setEmptyData('')->setFormat('HH:mm')->setLabel('Until Time'),
-        BooleanField::new('disabled'),
-        TextField::new('log_file')->setLabel('Log file')->setHelp('Do not provide the full path, only the log filename')
-    ];
+            IdField::new('id', 'ID')->hideOnForm()->setSortable(false)->hideOnIndex(),
+            ChoiceField::new('command')->setChoices($this->consoleCommandProvider->listConsoleCommands()),
+            TextField::new('arguments'),
+            ChoiceField::new('execution_type', 'Type')->setChoices([
+                'Frequency' => 'every',
+                'Cron' => 'cron',
+            ]),
+            TextField::new('frequency'),
+            DateField::new('execution_from_date')->setEmptyData('')->setFormat('yyyy-MM-dd')->setLabel('From Date'),
+            TimeField::new('execution_from_time')->setEmptyData('')->setFormat('HH:mm')->setLabel('From Time'),
+            DateField::new('execution_until_date')->setEmptyData('')->setFormat('yyyy-MM-dd')->setLabel('Until Date'),
+            TimeField::new('execution_until_time')->setEmptyData('')->setFormat('HH:mm')->setLabel('Until Time'),
+            BooleanField::new('disabled'),
+            TextField::new('log_file')->setLabel('Log file')->setHelp('Do not provide the full path, only the log filename')
+        ];
 
     }
 }
