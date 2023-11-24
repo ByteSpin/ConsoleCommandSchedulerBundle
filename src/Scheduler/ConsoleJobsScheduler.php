@@ -42,6 +42,7 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
         $scheduler = new Schedule();
         foreach($commands as $item) {
             $frequency = $item->getFrequency();
+            $log_file = $item->getLogFile();
             $command = $item->getCommand();
             $arguments = ($item->getArguments())
                 ? explode(' ', $item->getArguments())
@@ -90,7 +91,7 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
                         $scheduler->add(
                             RecurringMessage::every(
                                 $frequency,
-                                new ExecuteConsoleCommand($command, $arguments),
+                                new ExecuteConsoleCommand($command, $arguments, $log_file),
                                 $from,
                                 $until
                             )
@@ -106,7 +107,7 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
                         $scheduler->add(
                             RecurringMessage::cron(
                                 $frequency,
-                                new ExecuteConsoleCommand($command, $arguments)
+                                new ExecuteConsoleCommand($command, $arguments, $log_file)
                             )
                         )
                         ;
