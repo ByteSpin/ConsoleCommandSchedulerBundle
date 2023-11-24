@@ -4,7 +4,6 @@ This is a public project hosted on GitHub : https://github.com/ByteSpin/ConsoleC
 
 This bundle was originally developed as part of an ETL project.
 
-
 ByteSpin/ConsoleCommandSchedulerBundle is a Symfony 6.3 simple bundle that allows you to schedule console commands easily:
 - Use the latest messenger/scheduler Symfony 6.3+ components,
 - Log all console commands data (last execution time, duration, return code) in database and log file,
@@ -15,8 +14,10 @@ ByteSpin/ConsoleCommandSchedulerBundle is a Symfony 6.3 simple bundle that allow
 > This project is still at alpha state and has not yet been fully tested outside its parent project.
 > 
 > **Feel free to submit bug and/or pull requests!**
+> 
+> You can check the [CHANGELOG](CHANGELOG) to see the latest improvements and fixes.
 
-just keep in mind that I want to keep it as simple as possible!
+Just keep in mind that I want to keep it as simple as possible!
 
 Requirements
 ------------
