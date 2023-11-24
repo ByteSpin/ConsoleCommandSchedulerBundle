@@ -28,12 +28,12 @@ Installation
 ------------
 
 1. First install the bundle:
-```
+```bash
 composer require bytespin/console-commande-scheduler-bundle
 ```
 
 2. Then updates the database schema:
-```
+```bash
 php bin/console doctrine:schema:update --force
 ```
 
@@ -80,7 +80,7 @@ Administration interface
 
 You need to manually add the menu to your DashboardController.php file, for example:
 
-```
+```php
 use ByteSpin\ConsoleCommandSchedulerBundle\Entity\Scheduler;
 use ByteSpin\ConsoleCommandSchedulerBundle\Entity\SchedulerLog;
 use ByteSpin\ConsoleCommandSchedulerBundle\Controller\Admin\SchedulerCrudController;
@@ -140,10 +140,14 @@ Consuming messages
 ------------------
 The standard way of consuming scheduler messages is
 
-```bin/console messenger:consume scheduler_scheduler```
+```bash
+php bin/console messenger:consume scheduler_scheduler
+```
 
 If you want the command to be verbose, please use:
-```bin/console messenger:consume scheduler_scheduler -vv```
+```bash
+bin/console messenger:consume scheduler_scheduler -vv
+```
 
 You can use cron or supervisor to achieve this ; The console commands are then executed according to the generated triggers.
 
