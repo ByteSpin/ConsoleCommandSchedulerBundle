@@ -50,7 +50,10 @@ final readonly class ExecuteConsoleCommandHandler
             $message->command,
             ...$message->commandArguments
         ]);
-
+        // deactivate timeout
+        //todo: add timeout field in scheduler table
+        $process->setTimeout(null);
+        
         // start time for duration calculation
         $start = microtime(true);
         $dateTime = new DateTime();
