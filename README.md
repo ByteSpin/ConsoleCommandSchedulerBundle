@@ -26,16 +26,35 @@ Requirements
 Installation
 ------------
 
-First install the bundle:
+1. First install the bundle:
 ```
 composer require bytespin/console-commande-scheduler-bundle
 ```
 
-
-Then updates the database schema:
+2. Then updates the database schema:
 ```
 php bin/console doctrine:schema:update --force
 ```
+
+Manual bundle registration
+--------------------------
+
+If you are not using Symfony Flex, you will need to manually register the bundle in your application.
+
+To do this, follow these steps:
+
+1. Open the file `config/bundles.php` in your Symfony application.
+
+2. Add the following line to the array returned by this file:
+
+    ```php
+    ByteSpin\ConsoleCommandSchedulerBundle\ByteSpinConsoleCommandSchedulerBundle::class => ['all' => true],
+    ```
+   
+3. Save the file. Your bundle is now registered and ready to be used in your application.
+
+Make sure to perform this step after you have installed the bundle using Composer, but before you use any of its features in your application.
+
 
 Administration interface
 ------------------------
