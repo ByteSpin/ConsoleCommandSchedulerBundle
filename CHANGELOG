@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.5] - 2023-11-24
+### Improved
+- Sort logs by date descending in crud controller to improve readability
+
 ## [1.0.4] - 2023-11-24
 ### Added
 - Added bundle version in crud controllers help. The version is cached for improved performance.
