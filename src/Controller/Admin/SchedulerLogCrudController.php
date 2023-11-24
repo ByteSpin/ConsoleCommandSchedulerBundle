@@ -13,6 +13,8 @@
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Controller\Admin;
 
+use AllowDynamicProperties;
+use ByteSpin\ConsoleCommandSchedulerBundle\Provider\BundleVersionProvider;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -23,9 +25,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Exception;
 use ByteSpin\ConsoleCommandSchedulerBundle\Entity\SchedulerLog;
 
-class SchedulerLogCrudController extends AbstractCrudController
+#[AllowDynamicProperties]  class SchedulerLogCrudController extends AbstractCrudController
 {
     public function __construct(
+        private readonly BundleVersionProvider $bundleVersionProvider,
     ) {
     }
 
@@ -38,7 +41,8 @@ class SchedulerLogCrudController extends AbstractCrudController
     {
         return $crud
             ->setEntityLabelInSingular('Log')
-            ->setEntityLabelInPlural('Logs');
+            ->setEntityLabelInPlural('Logs')
+            ->setHelp('index', 'Bundle version ' . $this->bundleVersionProvider->getBundleVersion());
     }
 
 
@@ -72,7 +76,7 @@ class SchedulerLogCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {
         return $actions
-        ->remove(Crud::PAGE_INDEX, Action::NEW)
-        ->remove(Crud::PAGE_INDEX, Action::DELETE);
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
+            ->remove(Crud::PAGE_INDEX, Action::DELETE);
     }
 }
