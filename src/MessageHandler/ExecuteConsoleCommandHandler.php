@@ -93,9 +93,9 @@ final readonly class ExecuteConsoleCommandHandler
 
             if ($process->getExitCode() === 0) {
 
-                file_put_contents($logFile, "Command '. $message->command . ' ' . $message->commandArguments .' executed successfully in ' . $duration . ' seconds\n", FILE_APPEND);
+                file_put_contents($logFile, "Command '. $message->command . ' ' . implode(' ', $message->commandArguments) .' executed successfully in ' . $duration . ' seconds\n", FILE_APPEND);
             } else {
-                file_put_contents($logFile, "Command '. $message->command . ' ' . $message->commandArguments .' failure: " . $process->getExitCode() . "\n", FILE_APPEND);
+                file_put_contents($logFile, "Command '. $message->command . ' ' . implode(' ', $message->commandArguments) .' failure: " . $process->getExitCode() . "\n", FILE_APPEND);
             }
         } catch (ProcessFailedException $e) {
             file_put_contents($logFile, "Command failure: " . $e->getMessage() . "\n", FILE_APPEND);
