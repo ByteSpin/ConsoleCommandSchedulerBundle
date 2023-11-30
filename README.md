@@ -33,7 +33,7 @@ Installation
 composer require bytespin/console-commande-scheduler-bundle
 ```
 
-2. Then updates the database schema:
+2. Then update the database schema:
 ```
 php bin/console doctrine:schema:update --force
 ```
