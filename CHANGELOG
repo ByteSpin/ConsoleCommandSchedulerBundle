@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.7] - 2023-11-30
+### Improved
+- Improve duration readability in logs
+
 ## [1.0.6] - 2023-11-30
 ### Fixed
 - Remove the auto loaded doctrine configuration that was hard coded with the default entity manager
