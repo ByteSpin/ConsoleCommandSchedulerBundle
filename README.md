@@ -12,9 +12,9 @@ ByteSpin/ConsoleCommandSchedulerBundle is a Symfony 6.3 simple bundle that allow
 > [!NOTE]
 >
 > This project is still at alpha state and has not yet been fully tested outside its parent project.
-> 
+>
 > **Feel free to submit bug and/or pull requests!**
-> 
+>
 > You can check the [CHANGELOG](CHANGELOG) to see the latest improvements and fixes.
 
 Just keep in mind that I want to keep it as simple as possible!
@@ -32,7 +32,7 @@ Installation
 composer require bytespin/console-commande-scheduler-bundle
 ```
 
-2. Then updates the database schema:
+2. Then update the database schema:
 ```bash
 php bin/console doctrine:schema:update --force
 ```
@@ -50,7 +50,7 @@ The last version that includes schema modifications is : 1.0.3
 Manual bundle registration
 --------------------------
 
-If you are not using Symfony Flex, you will need to manually register the bundle in your application.
+You will need to manually register the bundle in your application.
 
 To do this, follow these steps:
 
@@ -59,12 +59,57 @@ To do this, follow these steps:
 2. Add the following line to the array returned by this file:
 
     ```php
-    ByteSpin\ConsoleCommandSchedulerBundle\ByteSpinConsoleCommandSchedulerBundle::class => ['all' => true],
+    ByteSpin\ConsoleCommandSchedulerBundle\ConsoleCommandSchedulerBundle::class => ['all' => true],
     ```
    
 3. Save the file. Your bundle is now registered and ready to be used in your application.
 
 Make sure to perform this step after you have installed the bundle using Composer, but before you use any of its features in your application.
+
+Configuration
+-------------
+
+You will have to configure the entity manager to be used with the ByteSpin\ConsoleCommandSchedulerBundle entities.
+This has to be done once after installation.
+We provide a script to automatise this step ; please run :
+```shell
+bin/console bytespin:configure-console-command-scheduler
+```
+
+If you prefer to do this by yourself, add the following lines just within your entity manager 'mappings:' key in doctrine.yaml :
+
+```yaml
+# src/config/packages/doctrine.yaml
+doctrine:
+    dbal:
+    (...)
+    orm:
+    (...)
+        entity_managers:
+            your_entity_manager:
+            (...)
+                mappings:
+                  ByteSpin\ConsoleCommandSchedulerBundle:
+                  is_bundle: false
+                  type: attribute
+                  dir: '%kernel.project_dir%/vendor/bytespin/console-command-scheduler-bundle/src/Entity'
+                  prefix: ByteSpin\ConsoleCommandSchedulerBundle\Entity
+                  alias: ByteSpin\ConsoleCommandSchedulerBundle
+            
+    
+
+```
+
+> [!IMPORTANT]
+>
+> If your project contains entities mapped to multiple entity managers, be careful to not use the auto_mapping: true in your doctrine configuration.
+>
+> This would prevent the getManagerForClass() function used in the bundle to get the correct entity manager to work properly!
+>
+> In such case :
+> - Choose the correct entity manager when you run the configuration script,
+> - Be sure to remove the 'auto_mapping: true' key from your doctrine.yaml (or set it to false),
+> - Be sure that ALL your entities are correctly mapped in the 'mappings:' sections of your doctrine.yaml
 
 
 Administration interface

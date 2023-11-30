@@ -22,7 +22,7 @@ final readonly class LogConsoleCommand
 {
     public function __construct(
         public string $command,
-        public array  $commandArguments = [],
+        public array $commandArguments = [],
         public DateTimeInterface|null $start = new DateTime(),
         public float $duration = 0,
         public int|null $return_code = null,

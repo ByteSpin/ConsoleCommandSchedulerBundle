@@ -45,7 +45,7 @@ services:
         public: false
         tags: [ 'controller.service_arguments' ]
         arguments:
-            $entityManager: '@Doctrine\ORM\EntityManagerInterface'
+            $managerRegistry: '@Doctrine\Persistence\ManagerRegistry'
     ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber\SchedulerEasyAdminSubscriber:
         autowire: true
         autoconfigure: true
@@ -58,6 +58,9 @@ services:
         tags: [ 'controller.service_arguments' ]
         arguments:
             $eventDispatcher: '@Symfony\Component\EventDispatcher\EventDispatcherInterface'
+    ByteSpin\ConsoleCommandSchedulerBundle\Command\ConfigureBundleCommand:
+        tags:
+            - { name: 'console.command', command: 'bytespin:configure-console-command-scheduler' }
 
 
 

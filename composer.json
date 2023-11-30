@@ -33,7 +33,10 @@
     "easycorp/easyadmin-bundle": "^4.5",
     "symfony/scheduler": "6.3.*",
     "symfony/process": "6.3.*",
-    "symfony/monolog-bundle": "^3.10"
+    "symfony/monolog-bundle": "^3.10",
+    "ext-readline": "*",
+    "symfony/yaml": "6.3.*"
+
   },
   "config": {
     "allow-plugins": {
@@ -48,5 +51,11 @@
       "assets:install %PUBLIC_DIR%": "symfony-cmd",
       "doctrine:migration:migrate --no-interaction": "symfony-cmd"
     }
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^1.10",
+    "phpunit/phpunit": "^10.4",
+    "squizlabs/php_codesniffer": "^3.7",
+    "friendsofphp/php-cs-fixer": "^3.39"
   }
 }

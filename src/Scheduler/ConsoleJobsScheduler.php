@@ -40,7 +40,7 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
     {
         $commands = $this->schedulerRepository->findBy(['disabled' => false]);
         $scheduler = new Schedule();
-        foreach($commands as $item) {
+        foreach ($commands as $item) {
             $frequency = $item->getFrequency();
             $log_file = $item->getLogFile();
             $command = $item->getCommand();
@@ -74,7 +74,7 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
                 : $until_date
             ;
 
-            $until_time = ($item->getExecutionUntilTime()) ?:'';
+            $until_time = ($item->getExecutionUntilTime()) ?: '';
             $until_time_str = ($until_time instanceof DateTime)
                 ? $until_time->format('H:i:s')
                 : $until_time
@@ -85,7 +85,7 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
                 : new DateTimeImmutable($until_date_str . ' ' . $until_time_str, new DateTimeZone('Europe/Paris'))
             ;
 
-            switch($item->getExecutionType()) {
+            switch ($item->getExecutionType()) {
                 case 'every':
                     try {
                         $scheduler->add(
@@ -98,7 +98,6 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
                         )
                         ;
                     } catch (Exception $e) {
-
                     }
                     break;
 
@@ -112,7 +111,6 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
                         )
                         ;
                     } catch (Exception $e) {
-
                     }
                     break;
             }
