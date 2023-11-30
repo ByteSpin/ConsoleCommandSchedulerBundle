@@ -22,7 +22,7 @@ readonly class BundleVersionProvider
 {
     public function __construct(
         #[Autowire('%kernel.project_dir%')]
-        private string         $projectDir,
+        private string $projectDir,
         private CacheInterface $cache,
     ) {
     }
@@ -45,5 +45,4 @@ readonly class BundleVersionProvider
             return $package ? $package['version'] : null;
         });
     }
-
 }

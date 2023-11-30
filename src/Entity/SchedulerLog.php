@@ -46,7 +46,7 @@ class SchedulerLog
     {
         return $this->id;
     }
-    public function setId(?int $id):void
+    public function setId(?int $id): void
     {
         $this->id = $id;
     }
@@ -54,7 +54,7 @@ class SchedulerLog
     {
         return $this->date;
     }
-    public function setDate(?DateTimeInterface $date):void
+    public function setDate(?DateTimeInterface $date): void
     {
         $this->date = $date;
     }
@@ -62,7 +62,7 @@ class SchedulerLog
     {
         return $this->command;
     }
-    public function setCommand(?string $command):void
+    public function setCommand(?string $command): void
     {
         $this->command = $command;
     }
@@ -70,7 +70,7 @@ class SchedulerLog
     {
         return $this->arguments;
     }
-    public function setArguments(?string $arguments):void
+    public function setArguments(?string $arguments): void
     {
         $this->arguments = $arguments;
     }
@@ -78,7 +78,7 @@ class SchedulerLog
     {
         return $this->return_code;
     }
-    public function setReturnCode(?string $return_code):void
+    public function setReturnCode(?string $return_code): void
     {
         $this->return_code = $return_code;
     }
@@ -86,7 +86,7 @@ class SchedulerLog
     {
         return $this->duration;
     }
-    public function setDuration(?string $duration):void
+    public function setDuration(string|float|null $duration): void
     {
         $this->duration = $duration;
     }

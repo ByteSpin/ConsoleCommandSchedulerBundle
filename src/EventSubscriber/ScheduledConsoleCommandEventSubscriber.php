@@ -13,17 +13,18 @@
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber;
 
+use AllowDynamicProperties;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use ByteSpin\ConsoleCommandSchedulerBundle\Entity\SchedulerLog;
 use ByteSpin\ConsoleCommandSchedulerBundle\Message\LogConsoleCommand;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 readonly class ScheduledConsoleCommandEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
+        private ManagerRegistry $managerRegistry,
     ) {
     }
 
@@ -51,8 +52,9 @@ readonly class ScheduledConsoleCommandEventSubscriber implements EventSubscriber
         $logData->setReturnCode($consoleCommand->return_code);
 
         try {
-            $this->entityManager->persist($logData);
-            $this->entityManager->flush();
+            $entityManager = $this->managerRegistry->getManagerForClass(SchedulerLog::class);
+            $entityManager->persist($logData);
+            $entityManager->flush();
         } catch (Exception $e) {
             throw new Exception('Error while logging Scheduled Console Command. Error was: ' . $e->getMessage());
         }

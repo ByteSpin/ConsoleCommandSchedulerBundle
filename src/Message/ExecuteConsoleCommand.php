@@ -19,8 +19,8 @@ final readonly class ExecuteConsoleCommand
 {
     public function __construct(
         public string $command,
-        public array  $commandArguments = [],
-        public string|null  $logFile = "",
+        public array $commandArguments = [],
+        public string|null $logFile = "",
     ) {
     }
 }
