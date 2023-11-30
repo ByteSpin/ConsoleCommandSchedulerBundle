@@ -82,7 +82,7 @@ final readonly class ExecuteConsoleCommandHandler
                 $message->command,
                 $message->commandArguments,
                 $dateTime,
-                $duration,
+                $this->durationConverter($duration),
                 $process->getExitCode(),
                 $logFile,
             );
@@ -93,12 +93,44 @@ final readonly class ExecuteConsoleCommandHandler
             $messageLog = $message->command . ' ' . implode(' ', $message->commandArguments);
 
             if ($process->getExitCode() === 0) {
-                file_put_contents($logFile, 'Command ' . $messageLog . ' executed successfully in ' . $duration . ' seconds' . PHP_EOL, FILE_APPEND);
+                file_put_contents(
+                    $logFile,
+                    'Command ' . $messageLog . ' executed successfully in ' . $duration . ' seconds' . PHP_EOL,
+                    FILE_APPEND
+                );
             } else {
-                file_put_contents($logFile, 'Command ' . $messageLog . ' failure: ' . $process->getExitCode() . PHP_EOL, FILE_APPEND);
+                file_put_contents(
+                    $logFile,
+                    'Command ' . $messageLog . ' failure: ' . $process->getExitCode() . PHP_EOL,
+                    FILE_APPEND
+                );
             }
         } catch (ProcessFailedException $e) {
-            file_put_contents($logFile, 'Command failure: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            file_put_contents(
+                $logFile,
+                'Command failure: ' . $e->getMessage() . PHP_EOL,
+                FILE_APPEND
+            );
         }
+    }
+
+    private function durationConverter(float $seconds): string
+    {
+        $s = intval($seconds);
+        $h = intdiv($s, 3600);
+        $m = intdiv($s % 3600, 60);
+        $rs = $s % 60;
+
+        $result = "";
+        if ($s > 0) {
+            $result .= "{$s} h ";
+        }
+        if ($m > 0 || ($h > 0 && $rs > 0)) {
+            $result .= "{$m} min. ";
+        }
+        if ($rs > 0) {
+            $result .= "{$rs} sec.";
+        }
+        return trim($result);
     }
 }
