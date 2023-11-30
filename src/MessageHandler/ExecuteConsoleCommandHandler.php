@@ -116,21 +116,22 @@ final readonly class ExecuteConsoleCommandHandler
 
     private function durationConverter(float $seconds): string
     {
-        $s = intval($seconds);
+        $s = ($seconds < 1) ? 1 : intval(round($seconds));
         $h = intdiv($s, 3600);
         $m = intdiv($s % 3600, 60);
         $rs = $s % 60;
 
-        $result = "";
-        if ($s > 0) {
-            $result .= "{$s} h ";
+        $result = [];
+        if ($h > 0) {
+            $result[] = "{$h} h";
         }
-        if ($m > 0 || ($h > 0 && $rs > 0)) {
-            $result .= "{$m} min. ";
+        if ($m > 0) {
+            $result[] = "{$m} min.";
         }
-        if ($rs > 0) {
-            $result .= "{$rs} sec.";
+        if ($rs > 0 || count($result) == 0) {
+            $result[] = "{$rs} sec.";
         }
-        return trim($result);
+
+        return implode(' ', $result);
     }
 }
