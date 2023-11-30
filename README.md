@@ -13,10 +13,12 @@ ByteSpin/ConsoleCommandSchedulerBundle is a Symfony 6.3 simple bundle that allow
 > [!NOTE]
 >
 > This project is still at alpha state and has not yet been fully tested outside its parent project.
-> 
+>
 > **Feel free to submit bug and/or pull requests!**
+>
+> You can check the [CHANGELOG](CHANGELOG) to see the latest improvements and fixes.
 
-just keep in mind that I want to keep it as simple as possible!
+Just keep in mind that I want to keep it as simple as possible!
 
 Requirements
 ------------
