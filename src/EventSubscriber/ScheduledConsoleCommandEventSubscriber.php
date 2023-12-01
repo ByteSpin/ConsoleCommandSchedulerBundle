@@ -48,7 +48,7 @@ readonly class ScheduledConsoleCommandEventSubscriber implements EventSubscriber
         $logData->setArguments(implode(' ', $consoleCommand->commandArguments));
         $logData->setDate($consoleCommand->start);
         $logData->setDuration($consoleCommand->duration);
-        $logData->setReturnCode($consoleCommand->return_code);
+        $logData->setReturnCode($consoleCommand->returnCode);
 
         try {
             $entityManager = $this->managerRegistry->getManagerForClass(SchedulerLog::class);

@@ -26,7 +26,7 @@ final readonly class ScheduledConsoleCommandGenericEvent
         public DateTimeInterface|null $start = new DateTime(),
         public DateTimeInterface|null $end = new DateTime(),
         public string $duration = '',
-        public int|null $return_code = null,
+        public int|null $returnCode = null,
         public string|null $logFile = null,
     ) {
     }
