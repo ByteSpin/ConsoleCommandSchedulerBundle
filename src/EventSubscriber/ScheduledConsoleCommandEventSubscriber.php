@@ -14,7 +14,7 @@
 namespace ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber;
 
 use ByteSpin\ConsoleCommandSchedulerBundle\Entity\SchedulerLog;
-use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandLogEvent;
+use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandGenericEvent;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -41,7 +41,7 @@ readonly class ScheduledConsoleCommandEventSubscriber implements EventSubscriber
      */
     public function logScheduledConsoleCommand(GenericEvent $event): void
     {
-        /** @var ScheduledConsoleCommandLogEvent $consoleCommand */
+        /** @var ScheduledConsoleCommandGenericEvent $consoleCommand */
         $consoleCommand = $event->getSubject();
         $logData = new SchedulerLog();
         $logData->setCommand($consoleCommand->command);
