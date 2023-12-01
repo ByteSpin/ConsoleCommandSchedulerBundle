@@ -15,9 +15,13 @@ declare(strict_types=1);
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\MessageHandler;
 
-use DateTime;
+use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandAfterEvent;
+use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandBeforeEvent;
+use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandFailureEvent;
+use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandLogEvent;
+use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandSuccessEvent;
 use ByteSpin\ConsoleCommandSchedulerBundle\Message\ExecuteConsoleCommand;
-use ByteSpin\ConsoleCommandSchedulerBundle\Message\LogConsoleCommand;
+use DateTime;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -59,6 +63,16 @@ final readonly class ExecuteConsoleCommandHandler
         $start = microtime(true);
         $dateTime = new DateTime();
 
+        // dispatch before execution event
+        $this->eventDispatcher->dispatch(new GenericEvent(
+            new ScheduledConsoleCommandBeforeEvent(
+                $message->command,
+                $message->commandArguments,
+                $dateTime,
+            ),
+            []
+        ), 'bytespin.before.scheduled.console.command');
+
         try {
             $process->start();
 
@@ -77,18 +91,55 @@ final readonly class ExecuteConsoleCommandHandler
             // duration
             $duration = round((microtime(true) - $start), 2);
 
-            // dispatch execution message
-            $message = new LogConsoleCommand(
-                $message->command,
-                $message->commandArguments,
-                $dateTime,
-                $this->durationConverter($duration),
-                $process->getExitCode(),
-                $logFile,
-            );
+            // dispatch log event
+            $this->eventDispatcher->dispatch(new GenericEvent(
+                new ScheduledConsoleCommandLogEvent(
+                    $message->command,
+                    $message->commandArguments,
+                    $dateTime,
+                    $this->durationConverter($duration),
+                    $process->getExitCode(),
+                    $logFile,
+                ),
+                []
+            ), 'bytespin.log.scheduled.console.command');
 
-            $this->eventDispatcher->dispatch(new GenericEvent($message, [
-            ]), 'log.scheduled.console.command');
+            // dispatch success / failure event
+            match ($process->getExitCode()) {
+                0 => $this->eventDispatcher->dispatch(new GenericEvent(
+                    new ScheduledConsoleCommandSuccessEvent(
+                        $message->command,
+                        $message->commandArguments,
+                        $dateTime,
+                        $this->durationConverter($duration),
+                        $process->getExitCode(),
+                    ),
+                    []
+                ), 'bytespin.success.scheduled.console.command'),
+
+                default => $this->eventDispatcher->dispatch(new GenericEvent(
+                    new ScheduledConsoleCommandFailureEvent(
+                        $message->command,
+                        $message->commandArguments,
+                        $dateTime,
+                        $this->durationConverter($duration),
+                        $process->getExitCode(),
+                    ),
+                    []
+                ), 'bytespin.failure.scheduled.console.command'),
+            };
+
+            // dispatch after execution event
+            $this->eventDispatcher->dispatch(new GenericEvent(
+                new ScheduledConsoleCommandAfterEvent(
+                    $message->command,
+                    $message->commandArguments,
+                    $dateTime,
+                    $this->durationConverter($duration),
+                    $process->getExitCode(),
+                ),
+                []
+            ), 'bytespin.after.scheduled.console.command');
 
             $messageLog = $message->command . ' ' . implode(' ', $message->commandArguments);
 
@@ -123,13 +174,13 @@ final readonly class ExecuteConsoleCommandHandler
 
         $result = [];
         if ($h > 0) {
-            $result[] = "{$h} h";
+            $result[] = "$h h";
         }
         if ($m > 0) {
-            $result[] = "{$m} min.";
+            $result[] = "$m min.";
         }
         if ($rs > 0 || count($result) == 0) {
-            $result[] = "{$rs} sec.";
+            $result[] = "$rs sec.";
         }
 
         return implode(' ', $result);
