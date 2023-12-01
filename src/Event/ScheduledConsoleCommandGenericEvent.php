@@ -13,19 +13,20 @@
 
 declare(strict_types=1);
 
-namespace ByteSpin\ConsoleCommandSchedulerBundle\Message;
+namespace ByteSpin\ConsoleCommandSchedulerBundle\Event;
 
 use DateTime;
 use DateTimeInterface;
 
-final readonly class LogConsoleCommand
+final readonly class ScheduledConsoleCommandGenericEvent
 {
     public function __construct(
         public string $command,
         public array $commandArguments = [],
         public DateTimeInterface|null $start = new DateTime(),
+        public DateTimeInterface|null $end = new DateTime(),
         public string $duration = '',
-        public int|null $return_code = null,
+        public int|null $returnCode = null,
         public string|null $logFile = null,
     ) {
     }

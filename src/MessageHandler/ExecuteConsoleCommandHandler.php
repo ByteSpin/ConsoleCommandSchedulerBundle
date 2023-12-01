@@ -15,9 +15,9 @@ declare(strict_types=1);
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\MessageHandler;
 
-use DateTime;
+use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandGenericEvent;
 use ByteSpin\ConsoleCommandSchedulerBundle\Message\ExecuteConsoleCommand;
-use ByteSpin\ConsoleCommandSchedulerBundle\Message\LogConsoleCommand;
+use DateTime;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -56,8 +56,18 @@ final readonly class ExecuteConsoleCommandHandler
         $process->setTimeout(null);
 
         // start time for duration calculation
-        $start = microtime(true);
-        $dateTime = new DateTime();
+        $start = time();
+
+        // dispatch before execution event
+        $this->eventDispatcher->dispatch(new GenericEvent(
+            new ScheduledConsoleCommandGenericEvent(
+                $message->command,
+                $message->commandArguments,
+                (new DateTime())->setTimestamp($start),
+                (new DateTime('1990-01-01')),
+            ),
+            []
+        ), 'bytespin.before.scheduled.console.command');
 
         try {
             $process->start();
@@ -74,21 +84,44 @@ final readonly class ExecuteConsoleCommandHandler
 
             $process->wait();
 
-            // duration
-            $duration = round((microtime(true) - $start), 2);
+            // end & duration
+            $end = time();
+            $duration = $end - $start;
 
-            // dispatch execution message
-            $message = new LogConsoleCommand(
+            // dispatch log event ($event content is the same)
+            $message = new ScheduledConsoleCommandGenericEvent(
                 $message->command,
                 $message->commandArguments,
-                $dateTime,
+                (new DateTime())->setTimestamp($start),
+                (new DateTime())->setTimestamp($end),
                 $this->durationConverter($duration),
                 $process->getExitCode(),
                 $logFile,
             );
 
-            $this->eventDispatcher->dispatch(new GenericEvent($message, [
-            ]), 'log.scheduled.console.command');
+            $this->eventDispatcher->dispatch(new GenericEvent(
+                $message,
+                []
+            ), 'bytespin.log.scheduled.console.command');
+
+            // dispatch success / failure event
+            match ($process->getExitCode()) {
+                0 => $this->eventDispatcher->dispatch(new GenericEvent(
+                    $message,
+                    []
+                ), 'bytespin.success.scheduled.console.command'),
+
+                default => $this->eventDispatcher->dispatch(new GenericEvent(
+                    $message,
+                    []
+                ), 'bytespin.failure.scheduled.console.command'),
+            };
+
+            // dispatch after execution event
+            $this->eventDispatcher->dispatch(new GenericEvent(
+                $message,
+                []
+            ), 'bytespin.after.scheduled.console.command');
 
             $messageLog = $message->command . ' ' . implode(' ', $message->commandArguments);
 
@@ -114,22 +147,22 @@ final readonly class ExecuteConsoleCommandHandler
         }
     }
 
-    private function durationConverter(float $seconds): string
+    private function durationConverter(int $seconds): string
     {
-        $s = ($seconds < 1) ? 1 : intval(round($seconds));
+        $s = ($seconds < 1) ? 1 : $seconds;
         $h = intdiv($s, 3600);
         $m = intdiv($s % 3600, 60);
         $rs = $s % 60;
 
         $result = [];
         if ($h > 0) {
-            $result[] = "{$h} h";
+            $result[] = "$h h";
         }
         if ($m > 0) {
-            $result[] = "{$m} min.";
+            $result[] = "$m min.";
         }
         if ($rs > 0 || count($result) == 0) {
-            $result[] = "{$rs} sec.";
+            $result[] = "$rs sec.";
         }
 
         return implode(' ', $result);

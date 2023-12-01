@@ -32,17 +32,20 @@ readonly class BundleVersionProvider
      */
     public function getBundleVersion(string $bundleName = 'bytespin/console-command-scheduler-bundle'): ?string
     {
-        return $this->cache->get('bytespin_console_command_scheduler_bundle_version', function (ItemInterface $item) use ($bundleName) {
-            $composerLock = json_decode(file_get_contents($this->projectDir . '/composer.lock'), true);
+        return $this->cache->get(
+            'bytespin_console_command_scheduler_bundle_version',
+            function (ItemInterface $item) use ($bundleName) {
+                $composerLock = json_decode(file_get_contents($this->projectDir . '/composer.lock'), true);
 
-            $packages = $composerLock['packages'] ?? [];
+                $packages = $composerLock['packages'] ?? [];
 
-            $filtered = array_filter($packages, function ($package) use ($bundleName) {
-                return $package['name'] === $bundleName;
-            });
+                $filtered = array_filter($packages, function ($package) use ($bundleName) {
+                    return $package['name'] === $bundleName;
+                });
 
-            $package = reset($filtered);
-            return $package ? $package['version'] : null;
-        });
+                $package = reset($filtered);
+                return $package ? $package['version'] : null;
+            }
+        );
     }
 }

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.8] - 2023-12-01
+### Added
+- Added 4 new events for deeper application integration : bytespin.before.scheduled.console.command, bytespin.success.scheduled.console.command, bytespin.failure.scheduled.console.command, bytespin.after.scheduled.console.command
+
+### Improved
+- Improve documentation with ByteSpin events usage example
+
 ## [1.0.7] - 2023-11-30
 ### Improved
 - Improve duration readability in logs
