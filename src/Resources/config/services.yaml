@@ -46,7 +46,7 @@ services:
         tags: [ 'controller.service_arguments' ]
         arguments:
             $managerRegistry: '@Doctrine\Persistence\ManagerRegistry'
-    ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber\SchedulerEasyAdminSubscriber:
+    ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber\SchedulerEasyAdminEventSubscriber:
         autowire: true
         autoconfigure: true
         public: false
