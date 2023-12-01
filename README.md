@@ -244,12 +244,12 @@ readonly class MyEventSubscriber implements EventSubscriberInterface
         /** @var ScheduledConsoleCommandGenericEvent $consoleCommand */
         $consoleCommand = $event->getSubject();
         
-        $message = 'The following scheduled console command failed:' . PHP_EOL
-                   '- Command: ' . $consoleCommand->command . ' ' . implode(' ', $consoleCommand->commandArguments) . PHP_EOL
-                   '- Scheduled at: ' . $consoleCommand->start->format('Y-m-d H:i:s') . PHP_EOL
-                   '- Failed at: ' . $consoleCommand->end->format('Y-m-d H:i:s') . PHP_EOL
-                   '- Duration: ' . $consoleCommand->duration . PHP_EOL
-                   '- Return code was: ' . $consoleCommand->returnCode . PHP_EOL
+        $message = 'The following scheduled console command failed:' . PHP_EOL .
+                   '- Command: ' . $consoleCommand->command . ' ' . implode(' ', $consoleCommand->commandArguments) . PHP_EOL .
+                   '- Scheduled at: ' . $consoleCommand->start->format('Y-m-d H:i:s') . PHP_EOL .
+                   '- Failed at: ' . $consoleCommand->end->format('Y-m-d H:i:s') . PHP_EOL .
+                   '- Duration: ' . $consoleCommand->duration . PHP_EOL .
+                   '- Return code was: ' . $consoleCommand->returnCode . PHP_EOL .
                    '- Please see log file ' . $consoleCommand->logFile;
 
         try {
