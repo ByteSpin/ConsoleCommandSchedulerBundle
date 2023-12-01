@@ -18,7 +18,7 @@ use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use ByteSpin\ConsoleCommandSchedulerBundle\Entity\Scheduler;
 
-class SchedulerEasyAdminSubscriber implements EventSubscriber
+class SchedulerEasyAdminEventSubscriber implements EventSubscriber
 {
     public function getSubscribedEvents(): array
     {
@@ -87,7 +87,6 @@ class SchedulerEasyAdminSubscriber implements EventSubscriber
         }
         if ($entity->getExecutionFromDate() instanceof \DateTimeInterface) {
             $entity->setExecutionFromDate($entity->getExecutionFromDate()->format('Y-m-d'));
-
         }
         if ($entity->getExecutionUntilTime() instanceof \DateTimeInterface) {
             $entity->setExecutionUntilTime($entity->getExecutionUntilTime()->format('H:i'));
@@ -95,6 +94,5 @@ class SchedulerEasyAdminSubscriber implements EventSubscriber
         if ($entity->getExecutionUntilDate() instanceof \DateTimeInterface) {
             $entity->setExecutionUntilDate($entity->getExecutionUntilDate()->format('Y-m-d'));
         }
-
     }
 }

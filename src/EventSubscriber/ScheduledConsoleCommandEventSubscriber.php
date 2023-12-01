@@ -13,13 +13,12 @@
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber;
 
-use AllowDynamicProperties;
+use ByteSpin\ConsoleCommandSchedulerBundle\Entity\SchedulerLog;
+use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandLogEvent;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
-use ByteSpin\ConsoleCommandSchedulerBundle\Entity\SchedulerLog;
-use ByteSpin\ConsoleCommandSchedulerBundle\Message\LogConsoleCommand;
-use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\GenericEvent;
 
 readonly class ScheduledConsoleCommandEventSubscriber implements EventSubscriberInterface
 {
@@ -31,7 +30,7 @@ readonly class ScheduledConsoleCommandEventSubscriber implements EventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            'log.scheduled.console.command' => [
+            'bytespin.log.scheduled.console.command' => [
                 ['logScheduledConsoleCommand'],
             ],
         ];
@@ -42,7 +41,7 @@ readonly class ScheduledConsoleCommandEventSubscriber implements EventSubscriber
      */
     public function logScheduledConsoleCommand(GenericEvent $event): void
     {
-        /** @var LogConsoleCommand $consoleCommand */
+        /** @var ScheduledConsoleCommandLogEvent $consoleCommand */
         $consoleCommand = $event->getSubject();
         $logData = new SchedulerLog();
         $logData->setCommand($consoleCommand->command);

@@ -14,6 +14,8 @@
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Entity;
 
 use ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SchedulerRepository::class)]
@@ -107,20 +109,19 @@ class Scheduler
         return $this;
     }
 
-    public function getExecutionFromDate(): ?\DateTimeInterface
+    public function getExecutionFromDate(): ?DateTimeInterface
     {
         if (empty($this->execution_from_date)) {
             return null;
         }
 
-        $date = \DateTime::createFromFormat('Y-m-d', $this->execution_from_date);
+        $date = DateTime::createFromFormat('Y-m-d', $this->execution_from_date);
         return $date ?: null;
-
     }
 
     public function setExecutionFromDate($execution_from_date): static
     {
-        if ($execution_from_date instanceof \DateTimeInterface) {
+        if ($execution_from_date instanceof DateTimeInterface) {
             $this->execution_from_date = $execution_from_date->format('Y-m-d');
         } else {
             $this->execution_from_date = $execution_from_date;
@@ -128,19 +129,19 @@ class Scheduler
         return $this;
     }
 
-    public function getExecutionFromTime(): ?\DateTimeInterface
+    public function getExecutionFromTime(): ?DateTimeInterface
     {
         if (empty($this->execution_from_time)) {
             return null;
         }
 
-        $time = \DateTime::createFromFormat('H:i', $this->execution_from_time);
+        $time = DateTime::createFromFormat('H:i', $this->execution_from_time);
         return $time ?: null;
     }
 
     public function setExecutionFromTime($execution_from_time): static
     {
-        if ($execution_from_time instanceof \DateTimeInterface) {
+        if ($execution_from_time instanceof DateTimeInterface) {
             $this->execution_from_time = $execution_from_time->format('H:i');
         } else {
             $this->execution_from_time = $execution_from_time;
@@ -149,19 +150,19 @@ class Scheduler
         return $this;
     }
 
-    public function getExecutionUntilDate(): ?\DateTimeInterface
+    public function getExecutionUntilDate(): ?DateTimeInterface
     {
         if (empty($this->execution_until_date)) {
             return null;
         }
 
-        $date = \DateTime::createFromFormat('Y-m-d', $this->execution_until_date);
+        $date = DateTime::createFromFormat('Y-m-d', $this->execution_until_date);
         return $date ?: null;
     }
 
     public function setExecutionUntilDate($execution_until_date): static
     {
-        if ($execution_until_date instanceof \DateTimeInterface) {
+        if ($execution_until_date instanceof DateTimeInterface) {
             $this->execution_until_date = $execution_until_date->format('Y-m-d');
         } else {
             $this->execution_until_date = $execution_until_date;
@@ -169,19 +170,19 @@ class Scheduler
         return $this;
     }
 
-    public function getExecutionUntilTime(): ?\DateTimeInterface
+    public function getExecutionUntilTime(): ?DateTimeInterface
     {
         if (empty($this->execution_until_time)) {
             return null;
         }
 
-        $time = \DateTime::createFromFormat('H:i', $this->execution_until_time);
+        $time = DateTime::createFromFormat('H:i', $this->execution_until_time);
         return $time ?: null;
     }
 
     public function setExecutionUntilTime($execution_until_time): static
     {
-        if ($execution_until_time instanceof \DateTimeInterface) {
+        if ($execution_until_time instanceof DateTimeInterface) {
             $this->execution_until_time = $execution_until_time->format('H:i');
         } else {
             $this->execution_until_time = $execution_until_time;
@@ -215,6 +216,4 @@ class Scheduler
     {
         $this->log_file = $log_file;
     }
-
-
 }
