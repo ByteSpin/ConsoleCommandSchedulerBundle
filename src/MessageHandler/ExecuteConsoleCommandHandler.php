@@ -15,11 +15,7 @@ declare(strict_types=1);
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\MessageHandler;
 
-use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandAfterEvent;
-use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandBeforeEvent;
 use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandGenericEvent;
-use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandLogEvent;
-use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandSuccessEvent;
 use ByteSpin\ConsoleCommandSchedulerBundle\Message\ExecuteConsoleCommand;
 use DateTime;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -60,7 +56,7 @@ final readonly class ExecuteConsoleCommandHandler
         $process->setTimeout(null);
 
         // start time for duration calculation
-        $start = microtime(true);
+        $start = time();
 
         // dispatch before execution event
         $this->eventDispatcher->dispatch(new GenericEvent(
@@ -89,8 +85,8 @@ final readonly class ExecuteConsoleCommandHandler
             $process->wait();
 
             // end & duration
-            $end = microtime(true);
-            $duration = round(($end - $start), 2);
+            $end = time();
+            $duration = $end - $start;
 
             // dispatch log event ($event content is the same)
             $message = new ScheduledConsoleCommandGenericEvent(
@@ -151,9 +147,9 @@ final readonly class ExecuteConsoleCommandHandler
         }
     }
 
-    private function durationConverter(float $seconds): string
+    private function durationConverter(int $seconds): string
     {
-        $s = ($seconds < 1) ? 1 : intval(round($seconds));
+        $s = ($seconds < 1) ? 1 : $seconds;
         $h = intdiv($s, 3600);
         $m = intdiv($s % 3600, 60);
         $rs = $s % 60;
