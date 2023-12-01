@@ -200,6 +200,74 @@ The commands returning code, date and duration are logged in the dedicated table
 
 You can view the logs in the administration interface
 
+Events
+------
+
+New generic events are now dispatched by the bundle for deeper integration with your application and/or a notification system:
+
+- **bytespin.before.scheduled.console.command**: event is dispatched just before console command execution
+- **bytespin.success.scheduled.console.command**: event is dispatched in case of console command success (return code == 0)
+- **bytespin.failure.scheduled.console.command**: event is dispatched in case of console command failure (return code != 0)
+- **bytespin.after.scheduled.console.command**: event is dispatched just after console command execution
+
+The event subject is normalized and contains all console command useful data.
+
+Use ByteSpin events through an event subscriber with a simple mail notification example:
+
+```php
+(...)
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\Mailer\MailerInterface;
+use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandGenericEvent;
+
+
+readonly class MyEventSubscriber implements EventSubscriberInterface
+{
+    public function __construct(
+        private MailerInterface $mailer,
+    ) {
+    }
+
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            'bytespin.failure.scheduled.console.command' => [
+                ['notifyInCaseOfFailure'],
+            ],
+        ];
+    }
+
+    public function notifyInCaseOfFailure(GenericEvent $event): void
+    {
+        /** @var ScheduledConsoleCommandGenericEvent $consoleCommand */
+        $consoleCommand = $event->getSubject();
+        
+        $message = 'The following scheduled console command failed:' . PHP_EOL
+                   '- Command: ' . $consoleCommand->command . ' ' . implode(' ', $consoleCommand->commandArguments) . PHP_EOL
+                   '- Scheduled at: ' . $consoleCommand->start->format('Y-m-d H:i:s') . PHP_EOL
+                   '- Failed at: ' . $consoleCommand->end->format('Y-m-d H:i:s') . PHP_EOL
+                   '- Duration: ' . $consoleCommand->duration . PHP_EOL
+                   '- Return code was: ' . $consoleCommand->returnCode . PHP_EOL
+                   '- Please see log file ' . $consoleCommand->logFile;
+
+        try {
+            $notification = new Email();
+            $notification
+                ->from('hello@example.com')
+                ->subject('Scheduled Console Command Failure!')
+                ->to('recipient@example.com')
+                ->text($message);
+            $this->mailer->send($notification);
+        } catch (TransportExceptionInterface $e) {
+            throw new Exception('Error while sending notification. Error was: ' . $e->getMessage());
+        }
+    }
+}
+```
+
+
 Licence
 -------
 
