@@ -8,6 +8,7 @@ ByteSpin/ConsoleCommandSchedulerBundle is a Symfony 6.3 simple bundle that allow
 - Use the latest messenger/scheduler Symfony 6.3+ components,
 - Log all console commands data (last execution time, duration, return code) in database and log file,
 - An admin interface is available with the help of EasyCorp/EasyAdmin bundle
+- Specific events are available for deeper integration with your application and/or notification system
 
 > [!NOTE]
 >
