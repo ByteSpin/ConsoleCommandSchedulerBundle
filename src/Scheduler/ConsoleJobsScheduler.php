@@ -98,6 +98,7 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
                         )
                         ;
                     } catch (Exception $e) {
+                        throw new Exception($e->getMessage());
                     }
                     break;
 
@@ -111,6 +112,7 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
                         )
                         ;
                     } catch (Exception $e) {
+                        throw new Exception($e->getMessage());
                     }
                     break;
             }
