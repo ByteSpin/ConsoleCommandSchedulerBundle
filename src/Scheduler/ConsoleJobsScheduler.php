@@ -21,6 +21,9 @@ use DateTimeZone;
 use Exception;
 use ByteSpin\ConsoleCommandSchedulerBundle\Message\ExecuteConsoleCommand;
 use ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository;
+use ReflectionClass;
+use ReflectionException;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
@@ -31,6 +34,7 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
 {
     public function __construct(
         private SchedulerRepository $schedulerRepository,
+        private Application $application,
     ) {
     }
     /**
@@ -49,6 +53,13 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
                 ? explode(' ', $item->getArguments())
                 : []
             ;
+
+            // add job id to arguments for optional use in run commands
+            if ($this->hasJobIdOptionInCommand($command)) {
+                $arguments[] = '--job-id=' . $id;
+            }
+
+
             $from_date = ($item->getExecutionFromDate())
                 ?: ''
             ;
@@ -117,5 +128,20 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
             }
         }
         return $scheduler;
+    }
+
+    private function hasJobIdOptionInCommand(string $command): bool
+    {
+        $command = $this->application->find($command);
+        $reflectionClass = new ReflectionClass(get_class($command));
+
+        try {
+            $method = $reflectionClass->getMethod('configure');
+            $method->invoke($command);
+
+            return $command->getDefinition()->hasOption('job-id');
+        } catch (ReflectionException $e) {
+        }
+        return false;
     }
 }
