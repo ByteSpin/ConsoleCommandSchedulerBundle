@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Scheduler;
 
+use AllowDynamicProperties;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -23,19 +24,22 @@ use ByteSpin\ConsoleCommandSchedulerBundle\Message\ExecuteConsoleCommand;
 use ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository;
 use ReflectionClass;
 use ReflectionException;
-use Symfony\Component\Console\Application;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 
-#[AsSchedule('scheduler')]
-final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
+#[AllowDynamicProperties] #[AsSchedule('scheduler')]
+final class ConsoleJobsScheduler implements ScheduleProviderInterface
 {
     public function __construct(
-        private SchedulerRepository $schedulerRepository,
-        private Application $application,
+        private readonly SchedulerRepository $schedulerRepository,
+        private readonly KernelInterface $kernel,
     ) {
+        $this->application = new Application($this->kernel);
+        $this->application->setAutoExit(false);
     }
     /**
      * @throws Exception
