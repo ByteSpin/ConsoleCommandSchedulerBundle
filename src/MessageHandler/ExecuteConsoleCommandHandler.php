@@ -46,6 +46,11 @@ final readonly class ExecuteConsoleCommandHandler
             : $this->logDir . '/' . $this->environment . '_scheduler.log'
         ;
 
+        $errorLogFile = $message->logFile
+            ? $this->logDir . '/' . $this->environment . '_error_' . $message->logFile
+            : $this->logDir . '/' . $this->environment . '_error_scheduler.log'
+        ;
+
         $process = new Process([
             $this->projectDir . '/bin/console',
             $message->command,
@@ -82,7 +87,7 @@ final readonly class ExecuteConsoleCommandHandler
                 if ($process::OUT === $type) {
                     file_put_contents($logFile, $data, FILE_APPEND);
                 } else { // $process::ERR === $type
-                    file_put_contents($logFile, $data, FILE_APPEND);
+                    file_put_contents($errorLogFile, $data, FILE_APPEND);
                 }
             }
 
