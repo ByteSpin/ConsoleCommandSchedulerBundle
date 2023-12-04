@@ -65,6 +65,10 @@ final readonly class ExecuteConsoleCommandHandler
                 $message->commandArguments,
                 (new DateTime())->setTimestamp($start),
                 (new DateTime('1990-01-01')),
+                '',
+                null,
+                null,
+                $message->id,
             ),
             []
         ), 'bytespin.before.scheduled.console.command');
@@ -97,6 +101,7 @@ final readonly class ExecuteConsoleCommandHandler
                 $this->durationConverter($duration),
                 $process->getExitCode(),
                 $logFile,
+                $message->id,
             );
 
             $this->eventDispatcher->dispatch(new GenericEvent(

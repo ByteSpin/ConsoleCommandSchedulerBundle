@@ -21,6 +21,7 @@ final readonly class ExecuteConsoleCommand
         public string $command,
         public array $commandArguments = [],
         public string|null $logFile = "",
+        public int $id = 0,
     ) {
     }
 }
