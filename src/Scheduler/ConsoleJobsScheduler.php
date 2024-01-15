@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -16,20 +16,22 @@ declare(strict_types=1);
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Scheduler;
 
 use AllowDynamicProperties;
+use ByteSpin\ConsoleCommandSchedulerBundle\Message\ExecuteConsoleCommand;
+use ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
 use Exception;
-use ByteSpin\ConsoleCommandSchedulerBundle\Message\ExecuteConsoleCommand;
-use ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository;
 use ReflectionClass;
 use ReflectionException;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Contracts\Cache\CacheInterface;
 
 #[AllowDynamicProperties] #[AsSchedule('scheduler')]
 final class ConsoleJobsScheduler implements ScheduleProviderInterface
@@ -37,10 +39,13 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
     public function __construct(
         private readonly SchedulerRepository $schedulerRepository,
         private readonly KernelInterface $kernel,
+        private readonly CacheInterface $cache,
+        private readonly LockFactory $lockFactory,
     ) {
         $this->application = new Application($this->kernel);
         $this->application->setAutoExit(false);
     }
+
     /**
      * @throws Exception
      */
@@ -61,7 +66,7 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
 
             // add job id to arguments for optional use in run commands
             if ($this->hasJobIdOptionInCommand($command)) {
-                $arguments[] = '--job-id=' . $id;
+                $arguments[] = '--job-id='.$id;
             }
 
             $from_date = ($item->getExecutionFromDate())
@@ -79,7 +84,7 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
                 : $from_time
             ;
 
-            $from = new DateTimeImmutable($from_date_str . ' ' . $from_time_str, new DateTimeZone('Europe/Paris'));
+            $from = new DateTimeImmutable($from_date_str.' '.$from_time_str, new DateTimeZone('Europe/Paris'));
 
             $until_date = ($item->getExecutionUntilDate())
                 ?: ''
@@ -96,9 +101,9 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
                 : $until_time
             ;
 
-            $until = ($until_date_str === '' && $until_time_str === '')
+            $until = ('' === $until_date_str && '' === $until_time_str)
                 ? new DateTimeImmutable('3000-01-01')
-                : new DateTimeImmutable($until_date_str . ' ' . $until_time_str, new DateTimeZone('Europe/Paris'))
+                : new DateTimeImmutable($until_date_str.' '.$until_time_str, new DateTimeZone('Europe/Paris'))
             ;
 
             switch ($item->getExecutionType()) {
@@ -133,7 +138,8 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
                     break;
             }
         }
-        return $scheduler;
+
+        return $scheduler->stateful($this->cache)->lock($this->lockFactory->createLock('scheduler_scheduler'));
     }
 
     private function hasJobIdOptionInCommand(string $command): bool
@@ -148,6 +154,7 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
             return $command->getDefinition()->hasOption('job-id');
         } catch (ReflectionException $e) {
         }
+
         return false;
     }
 }
