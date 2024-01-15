@@ -36,7 +36,8 @@
     "symfony/monolog-bundle": "^3.10",
     "ext-readline": "*",
     "symfony/yaml": "^6.3",
-    "symfony/console": "^6.3"
+    "symfony/console": "^6.3",
+    "symfony/lock": "^6.3"
 
   },
   "config": {

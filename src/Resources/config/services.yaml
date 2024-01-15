@@ -40,6 +40,8 @@ services:
         arguments:
             $schedulerRepository: '@ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository'
             $kernel: '@Symfony\Component\HttpKernel\KernelInterface'
+            $cache: '@Symfony\Contracts\Cache\CacheInterface'
+            $lockFactory: '@Symfony\Component\Lock\LockFactory'
     ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber\ScheduledConsoleCommandEventSubscriber:
         autowire: true
         autoconfigure: true

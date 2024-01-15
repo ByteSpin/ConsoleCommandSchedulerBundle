@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -15,34 +15,32 @@ declare(strict_types=1);
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Scheduler;
 
-use AllowDynamicProperties;
-use DateTime;
-use DateTimeImmutable;
-use DateTimeZone;
-use Exception;
 use ByteSpin\ConsoleCommandSchedulerBundle\Message\ExecuteConsoleCommand;
 use ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository;
-use ReflectionClass;
-use ReflectionException;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Contracts\Cache\CacheInterface;
 
-#[AllowDynamicProperties] #[AsSchedule('scheduler')]
+#[\AllowDynamicProperties] #[AsSchedule('scheduler')]
 final class ConsoleJobsScheduler implements ScheduleProviderInterface
 {
     public function __construct(
         private readonly SchedulerRepository $schedulerRepository,
         private readonly KernelInterface $kernel,
+        private readonly CacheInterface $cache,
+        private readonly LockFactory $lockFactory,
     ) {
         $this->application = new Application($this->kernel);
         $this->application->setAutoExit(false);
     }
+
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function getSchedule(): Schedule
     {
@@ -61,44 +59,44 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
 
             // add job id to arguments for optional use in run commands
             if ($this->hasJobIdOptionInCommand($command)) {
-                $arguments[] = '--job-id=' . $id;
+                $arguments[] = '--job-id='.$id;
             }
 
             $from_date = ($item->getExecutionFromDate())
                 ?: ''
             ;
-            $from_date_str = ($from_date instanceof DateTime)
+            $from_date_str = ($from_date instanceof \DateTime)
                 ? $from_date->format('Y-m-d')
                 : $from_date
             ;
             $from_time = ($item->getExecutionFromTime())
                 ?: ''
             ;
-            $from_time_str = ($from_time instanceof DateTime)
+            $from_time_str = ($from_time instanceof \DateTime)
                 ? $from_time->format('H:i:s')
                 : $from_time
             ;
 
-            $from = new DateTimeImmutable($from_date_str . ' ' . $from_time_str, new DateTimeZone('Europe/Paris'));
+            $from = new \DateTimeImmutable($from_date_str.' '.$from_time_str, new \DateTimeZone('Europe/Paris'));
 
             $until_date = ($item->getExecutionUntilDate())
                 ?: ''
             ;
 
-            $until_date_str = ($until_date instanceof DateTime)
+            $until_date_str = ($until_date instanceof \DateTime)
                 ? $until_date->format('Y-m-d')
                 : $until_date
             ;
 
             $until_time = ($item->getExecutionUntilTime()) ?: '';
-            $until_time_str = ($until_time instanceof DateTime)
+            $until_time_str = ($until_time instanceof \DateTime)
                 ? $until_time->format('H:i:s')
                 : $until_time
             ;
 
-            $until = ($until_date_str === '' && $until_time_str === '')
-                ? new DateTimeImmutable('3000-01-01')
-                : new DateTimeImmutable($until_date_str . ' ' . $until_time_str, new DateTimeZone('Europe/Paris'))
+            $until = ('' === $until_date_str && '' === $until_time_str)
+                ? new \DateTimeImmutable('3000-01-01')
+                : new \DateTimeImmutable($until_date_str.' '.$until_time_str, new \DateTimeZone('Europe/Paris'))
             ;
 
             switch ($item->getExecutionType()) {
@@ -113,7 +111,7 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
                             )
                         )
                         ;
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                     }
                     break;
 
@@ -126,26 +124,28 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
                             )
                         )
                         ;
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                     }
                     break;
             }
         }
-        return $scheduler;
+
+        return $scheduler->stateful($this->cache)->lock($this->lockFactory->createLock('scheduler_scheduler'));
     }
 
     private function hasJobIdOptionInCommand(string $command): bool
     {
         $command = $this->application->find($command);
-        $reflectionClass = new ReflectionClass(get_class($command));
+        $reflectionClass = new \ReflectionClass(get_class($command));
 
         try {
             $method = $reflectionClass->getMethod('configure');
             $method->invoke($command);
 
             return $command->getDefinition()->hasOption('job-id');
-        } catch (ReflectionException $e) {
+        } catch (\ReflectionException $e) {
         }
+
         return false;
     }
 }
