@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.11] - 2024-01-15
+### Fixed
+- Fix composer dragonmantank/cron-expression requirement
+
 ## [1.0.10] - 2024-01-15
 ### Added
 - Implemented lock management to prevent concurrent execution of the same task when multiple workers are defined.

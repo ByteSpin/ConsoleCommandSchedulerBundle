@@ -37,7 +37,8 @@
     "ext-readline": "*",
     "symfony/yaml": "^6.3",
     "symfony/console": "^6.3",
-    "symfony/lock": "^6.3"
+    "symfony/lock": "^6.3",
+    "dragonmantank/cron-expression": "^3.3"
 
   },
   "config": {
