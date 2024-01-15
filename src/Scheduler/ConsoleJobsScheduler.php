@@ -53,6 +53,7 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
             $log_file = $item->getLogFile();
             $command = $item->getCommand();
             $id = $item->getId();
+            $no_db_log = $item->getNoDbLog();
             $arguments = ($item->getArguments())
                 ? explode(' ', $item->getArguments())
                 : []
@@ -62,7 +63,6 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
             if ($this->hasJobIdOptionInCommand($command)) {
                 $arguments[] = '--job-id=' . $id;
             }
-
 
             $from_date = ($item->getExecutionFromDate())
                 ?: ''
@@ -107,7 +107,7 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
                         $scheduler->add(
                             RecurringMessage::every(
                                 $frequency,
-                                new ExecuteConsoleCommand($command, $arguments, $log_file, $id),
+                                new ExecuteConsoleCommand($command, $arguments, $log_file, $id, $no_db_log),
                                 $from,
                                 $until
                             )
@@ -122,7 +122,7 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
                         $scheduler->add(
                             RecurringMessage::cron(
                                 $frequency,
-                                new ExecuteConsoleCommand($command, $arguments, $log_file, $id)
+                                new ExecuteConsoleCommand($command, $arguments, $log_file, $id, $no_db_log)
                             )
                         )
                         ;

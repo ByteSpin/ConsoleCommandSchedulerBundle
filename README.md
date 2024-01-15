@@ -19,6 +19,13 @@ ByteSpin/ConsoleCommandSchedulerBundle is a Symfony 6.3 simple bundle that allow
 
 Just keep in mind that I want to keep it as simple as possible!
 
+> [!IMPORTANT]
+>
+> Version 1.0.9 requires schema update.
+> Please run : 
+> ```php php bin/console doctrine:schema:update --force```
+
+
 Requirements
 ------------
 - php 8.2+
@@ -44,7 +51,7 @@ For now, the bundle still lacks a custom recipe to manage database schema upgrad
 
 **Do not forget to update the database schema when updating the bundle**
 
-The last version that includes schema modifications is : 1.0.3
+The last version that includes schema modifications is : 1.0.9
 
 
 Manual bundle registration
@@ -175,7 +182,7 @@ The administration interface provides two sections:
       - **Log File**: you can provide the log file name desired for the current command.
         - Please note that you must not provide the full path, only the log filename.
         - If not provided, a default %env%_scheduler.log is created.
- 
+      - **No DB Log**: Enabling this option ensures that no logs related to this event are recorded in the database. However, standard logging to files will continue as usual. This feature is useful for reducing database clutter or when database logging is not required for specific events.
 
 - **<u>The log section:</u>** provides a simple log viewing interface
 

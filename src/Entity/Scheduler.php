@@ -53,6 +53,9 @@ class Scheduler
     #[ORM\Column(nullable: true)]
     private ?bool $disabled = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $noDbLog = false;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $log_file = null;
 
@@ -215,5 +218,13 @@ class Scheduler
     public function setLogFile(?string $log_file): void
     {
         $this->log_file = $log_file;
+    }
+    public function getNoDbLog(): ?bool
+    {
+        return $this->noDbLog;
+    }
+    public function setNoDbLog(?bool $noDbLog): void
+    {
+        $this->noDbLog = $noDbLog;
     }
 }

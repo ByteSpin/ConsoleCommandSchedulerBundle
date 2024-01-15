@@ -73,6 +73,7 @@ use Psr\Cache\InvalidArgumentException;
             DateField::new('execution_until_date')->setEmptyData('')->setFormat('yyyy-MM-dd')->setLabel('Until Date'),
             TimeField::new('execution_until_time')->setEmptyData('')->setFormat('HH:mm')->setLabel('Until Time'),
             BooleanField::new('disabled'),
+            BooleanField::new('no_db_log')->setLabel('No Database Log'),
             TextField::new('log_file')->setLabel('Log file')->setHelp('Do not provide the full path, only the log filename')
         ];
 

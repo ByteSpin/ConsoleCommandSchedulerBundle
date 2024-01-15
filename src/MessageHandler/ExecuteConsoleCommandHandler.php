@@ -74,6 +74,7 @@ final readonly class ExecuteConsoleCommandHandler
                 null,
                 null,
                 $message->id,
+                $message->noDbLog,
             ),
             []
         ), 'bytespin.before.scheduled.console.command');
@@ -91,13 +92,15 @@ final readonly class ExecuteConsoleCommandHandler
                 }
             }
 
+            file_put_contents($logFile, $process->getOutput(), FILE_APPEND);
+
             $process->wait();
 
             // end & duration
             $end = time();
             $duration = $end - $start;
 
-            // dispatch log event ($event content is the same)
+            // update message with execution data
             $message = new ScheduledConsoleCommandGenericEvent(
                 $message->command,
                 $message->commandArguments,
@@ -107,12 +110,16 @@ final readonly class ExecuteConsoleCommandHandler
                 $process->getExitCode(),
                 $logFile,
                 $message->id,
+                $message->noDbLog,
             );
 
-            $this->eventDispatcher->dispatch(new GenericEvent(
-                $message,
-                []
-            ), 'bytespin.log.scheduled.console.command');
+            // dispatch log event ($event content is the same)
+            if (true !== $message->noDbLog) {
+                $this->eventDispatcher->dispatch(new GenericEvent(
+                    $message,
+                    []
+                ), 'bytespin.log.scheduled.console.command');
+            }
 
             // dispatch success / failure event
             match ($process->getExitCode()) {

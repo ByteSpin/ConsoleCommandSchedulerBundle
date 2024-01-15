@@ -29,6 +29,7 @@ final readonly class ScheduledConsoleCommandGenericEvent
         public int|null $returnCode = null,
         public string|null $logFile = null,
         public int $id = 0,
+        public ?bool $noDbLog = false,
     ) {
     }
 }
