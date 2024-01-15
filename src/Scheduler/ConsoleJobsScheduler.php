@@ -15,23 +15,31 @@ declare(strict_types=1);
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Scheduler;
 
+use AllowDynamicProperties;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
 use Exception;
 use ByteSpin\ConsoleCommandSchedulerBundle\Message\ExecuteConsoleCommand;
 use ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository;
+use ReflectionClass;
+use ReflectionException;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 
-#[AsSchedule('scheduler')]
-final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
+#[AllowDynamicProperties] #[AsSchedule('scheduler')]
+final class ConsoleJobsScheduler implements ScheduleProviderInterface
 {
     public function __construct(
-        private SchedulerRepository $schedulerRepository,
+        private readonly SchedulerRepository $schedulerRepository,
+        private readonly KernelInterface $kernel,
     ) {
+        $this->application = new Application($this->kernel);
+        $this->application->setAutoExit(false);
     }
     /**
      * @throws Exception
@@ -44,10 +52,18 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
             $frequency = $item->getFrequency();
             $log_file = $item->getLogFile();
             $command = $item->getCommand();
+            $id = $item->getId();
+            $no_db_log = $item->getNoDbLog();
             $arguments = ($item->getArguments())
                 ? explode(' ', $item->getArguments())
                 : []
             ;
+
+            // add job id to arguments for optional use in run commands
+            if ($this->hasJobIdOptionInCommand($command)) {
+                $arguments[] = '--job-id=' . $id;
+            }
+
             $from_date = ($item->getExecutionFromDate())
                 ?: ''
             ;
@@ -91,7 +107,7 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
                         $scheduler->add(
                             RecurringMessage::every(
                                 $frequency,
-                                new ExecuteConsoleCommand($command, $arguments, $log_file),
+                                new ExecuteConsoleCommand($command, $arguments, $log_file, $id, $no_db_log),
                                 $from,
                                 $until
                             )
@@ -107,7 +123,7 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
                         $scheduler->add(
                             RecurringMessage::cron(
                                 $frequency,
-                                new ExecuteConsoleCommand($command, $arguments, $log_file)
+                                new ExecuteConsoleCommand($command, $arguments, $log_file, $id, $no_db_log)
                             )
                         )
                         ;
@@ -118,5 +134,20 @@ final readonly class ConsoleJobsScheduler implements ScheduleProviderInterface
             }
         }
         return $scheduler;
+    }
+
+    private function hasJobIdOptionInCommand(string $command): bool
+    {
+        $command = $this->application->find($command);
+        $reflectionClass = new ReflectionClass(get_class($command));
+
+        try {
+            $method = $reflectionClass->getMethod('configure');
+            $method->invoke($command);
+
+            return $command->getDefinition()->hasOption('job-id');
+        } catch (ReflectionException $e) {
+        }
+        return false;
     }
 }

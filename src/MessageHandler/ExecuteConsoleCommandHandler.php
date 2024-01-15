@@ -46,6 +46,11 @@ final readonly class ExecuteConsoleCommandHandler
             : $this->logDir . '/' . $this->environment . '_scheduler.log'
         ;
 
+        $errorLogFile = $message->logFile
+            ? $this->logDir . '/' . $this->environment . '_error_' . $message->logFile
+            : $this->logDir . '/' . $this->environment . '_error_scheduler.log'
+        ;
+
         $process = new Process([
             $this->projectDir . '/bin/console',
             $message->command,
@@ -65,6 +70,11 @@ final readonly class ExecuteConsoleCommandHandler
                 $message->commandArguments,
                 (new DateTime())->setTimestamp($start),
                 (new DateTime('1990-01-01')),
+                '',
+                null,
+                null,
+                $message->id,
+                $message->noDbLog,
             ),
             []
         ), 'bytespin.before.scheduled.console.command');
@@ -78,9 +88,11 @@ final readonly class ExecuteConsoleCommandHandler
                 if ($process::OUT === $type) {
                     file_put_contents($logFile, $data, FILE_APPEND);
                 } else { // $process::ERR === $type
-                    file_put_contents($logFile, $data, FILE_APPEND);
+                    file_put_contents($errorLogFile, $data, FILE_APPEND);
                 }
             }
+
+            file_put_contents($logFile, $process->getOutput(), FILE_APPEND);
 
             $process->wait();
 
@@ -88,7 +100,7 @@ final readonly class ExecuteConsoleCommandHandler
             $end = time();
             $duration = $end - $start;
 
-            // dispatch log event ($event content is the same)
+            // update message with execution data
             $message = new ScheduledConsoleCommandGenericEvent(
                 $message->command,
                 $message->commandArguments,
@@ -97,12 +109,17 @@ final readonly class ExecuteConsoleCommandHandler
                 $this->durationConverter($duration),
                 $process->getExitCode(),
                 $logFile,
+                $message->id,
+                $message->noDbLog,
             );
 
-            $this->eventDispatcher->dispatch(new GenericEvent(
-                $message,
-                []
-            ), 'bytespin.log.scheduled.console.command');
+            // dispatch log event ($event content is the same)
+            if (true !== $message->noDbLog) {
+                $this->eventDispatcher->dispatch(new GenericEvent(
+                    $message,
+                    []
+                ), 'bytespin.log.scheduled.console.command');
+            }
 
             // dispatch success / failure event
             match ($process->getExitCode()) {

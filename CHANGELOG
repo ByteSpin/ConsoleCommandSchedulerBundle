@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.9] - 2024-01-15
+### Added
+- Added "No DB Log" option to Scheduler entity to allow no database logging for some events
+
 ## [1.0.8] - 2023-12-01
 ### Added
 - Added 4 new events for deeper application integration : bytespin.before.scheduled.console.command, bytespin.success.scheduled.console.command, bytespin.failure.scheduled.console.command, bytespin.after.scheduled.console.command

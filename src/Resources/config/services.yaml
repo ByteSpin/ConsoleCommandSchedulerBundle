@@ -39,6 +39,7 @@ services:
         tags: [ 'controller.service_arguments' ]
         arguments:
             $schedulerRepository: '@ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository'
+            $kernel: '@Symfony\Component\HttpKernel\KernelInterface'
     ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber\ScheduledConsoleCommandEventSubscriber:
         autowire: true
         autoconfigure: true

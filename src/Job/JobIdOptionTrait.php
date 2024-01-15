@@ -11,18 +11,16 @@
  * file that was distributed with this source code.
  */
 
-declare(strict_types=1);
+namespace ByteSpin\ConsoleCommandSchedulerBundle\Job;
 
-namespace ByteSpin\ConsoleCommandSchedulerBundle\Message;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputOption;
 
-final readonly class ExecuteConsoleCommand
+trait JobIdOptionTrait
 {
-    public function __construct(
-        public string $command,
-        public array $commandArguments = [],
-        public string|null $logFile = "",
-        public int $id = 0,
-        public ?bool $noDbLog = false,
-    ) {
+    protected function configureJobIdOption(): void
+    {
+        /* @var Command $this */
+        $this->addOption('job-id', null, InputOption::VALUE_REQUIRED, 'Job ID');
     }
 }
