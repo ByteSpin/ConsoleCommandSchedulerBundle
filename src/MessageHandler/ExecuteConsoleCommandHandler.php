@@ -86,13 +86,13 @@ final readonly class ExecuteConsoleCommandHandler
                 // keep common parts for further use
                 // distinguish error and standard log?
                 if ($process::OUT === $type) {
-                    file_put_contents($logFile, (new DateTime())->format('Y-m-d H:i:s') . '\t' . $data, FILE_APPEND);
+                    file_put_contents($logFile, (new DateTime())->format('Y-m-d H:i:s') . ' ' . $data, FILE_APPEND);
                 } else { // $process::ERR === $type
-                    file_put_contents($errorLogFile, (new DateTime())->format('Y-m-d H:i:s') . '\t' . $data, FILE_APPEND);
+                    file_put_contents($errorLogFile, (new DateTime())->format('Y-m-d H:i:s') . ' ' . $data, FILE_APPEND);
                 }
             }
 
-            file_put_contents($logFile, (new DateTime())->format('Y-m-d H:i:s') . '\t' . $process->getOutput(), FILE_APPEND);
+            file_put_contents($logFile, (new DateTime())->format('Y-m-d H:i:s') . ' ' . $process->getOutput(), FILE_APPEND);
 
             $process->wait();
 
@@ -145,20 +145,20 @@ final readonly class ExecuteConsoleCommandHandler
             if ($process->getExitCode() === 0) {
                 file_put_contents(
                     $logFile,
-                    (new DateTime())->format('Y-m-d H:i:s') . '\t' . 'Command ' . $messageLog . ' executed successfully in ' . $duration . ' seconds' . PHP_EOL,
+                    (new DateTime())->format('Y-m-d H:i:s') . ' ' . 'Command ' . $messageLog . ' executed successfully in ' . $duration . ' seconds' . PHP_EOL,
                     FILE_APPEND
                 );
             } else {
                 file_put_contents(
                     $logFile,
-                    (new DateTime())->format('Y-m-d H:i:s') . '\t' . 'Command ' . $messageLog . ' failure: ' . $process->getExitCode() . PHP_EOL,
+                    (new DateTime())->format('Y-m-d H:i:s') . ' ' . 'Command ' . $messageLog . ' failure: ' . $process->getExitCode() . PHP_EOL,
                     FILE_APPEND
                 );
             }
         } catch (ProcessFailedException $e) {
             file_put_contents(
                 $logFile,
-                (new DateTime())->format('Y-m-d H:i:s') . '\t' . 'Command failure: ' . $e->getMessage() . PHP_EOL,
+                (new DateTime())->format('Y-m-d H:i:s') . ' ' . 'Command failure: ' . $e->getMessage() . PHP_EOL,
                 FILE_APPEND
             );
         }
