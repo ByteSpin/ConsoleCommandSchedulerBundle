@@ -85,9 +85,7 @@ final readonly class ExecuteConsoleCommandHandler
             foreach ($process as $type => $data) {
                 // keep common parts for further use
                 // distinguish error and standard log?
-                if ($process::OUT === $type) {
-                    file_put_contents($logFile, (new DateTime())->format('Y-m-d H:i:s') . ' ' . $data, FILE_APPEND);
-                } else { // $process::ERR === $type
+                if ($process::OUT !== $type) {
                     file_put_contents($errorLogFile, (new DateTime())->format('Y-m-d H:i:s') . ' ' . $data, FILE_APPEND);
                 }
             }
