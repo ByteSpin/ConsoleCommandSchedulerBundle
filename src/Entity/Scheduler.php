@@ -253,11 +253,11 @@ class Scheduler
     {
         $this->email = $email;
     }
-    public function getJobTitle(): ?bool
+    public function getJobTitle(): ?string
     {
         return $this->job_title;
     }
-    public function setJobTitle(?bool $job_title): void
+    public function setJobTitle(?string $job_title): void
     {
         $this->job_title = $job_title;
     }
