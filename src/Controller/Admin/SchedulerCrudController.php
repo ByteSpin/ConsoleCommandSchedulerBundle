@@ -74,7 +74,11 @@ use Psr\Cache\InvalidArgumentException;
             TimeField::new('execution_until_time')->setEmptyData('')->setFormat('HH:mm')->setLabel('Until Time'),
             BooleanField::new('disabled'),
             BooleanField::new('no_db_log')->setLabel('No Database Log'),
-            TextField::new('log_file')->setLabel('Log file')->setHelp('Do not provide the full path, only the log filename')
+            TextField::new('log_file')
+                ->setLabel('Log file')->setHelp('Do not provide the full path, only the log filename'),
+            BooleanField::new('send_email')->setLabel('Send Notification?'),
+            TextField::new('email')->setLabel('Notif. Email'),
+            TextField::new('job_title')->setLabel('Job Title')
         ];
 
     }
