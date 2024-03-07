@@ -24,7 +24,7 @@ class JobOutputCollector
 
     public function getOutputs(int $commandId)
     {
-        return $this->outputs[$commandId];
+        return $this->outputs[$commandId] ?? null;
     }
 
     public function clearOutputs(?int $commandId = null): void
