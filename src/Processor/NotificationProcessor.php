@@ -72,6 +72,9 @@ readonly class NotificationProcessor
             ;
 
             $this->mailer->send($email);
+
+            // empty output for current command
+            $this->outputCollector->clearOutputs($consoleCommand->id);
         }
     }
 }
