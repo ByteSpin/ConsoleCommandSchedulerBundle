@@ -60,7 +60,7 @@ readonly class NotificationProcessor
                 ->context([
                     'dateTime' => $consoleCommand->start->format('d/m/Y'),
                     'commandName' => $consoleCommand->command,
-                    'commandArguments' => $consoleCommand->commandArguments,
+                    'commandArguments' => implode(' ', $consoleCommand->commandArguments),
                     'duration' => $consoleCommand->duration,
                     'returnCode' => $consoleCommand->returnCode,
                     'outputs' => $outputs,
