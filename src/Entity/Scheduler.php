@@ -66,7 +66,7 @@ class Scheduler
     private ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?bool $job_title = null;
+    private ?string $job_title = null;
 
 
     public function getId(): ?int
