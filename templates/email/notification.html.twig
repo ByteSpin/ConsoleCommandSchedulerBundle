@@ -1,0 +1,45 @@
+{% apply inline_css %}
+    <style>
+        root {
+            font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+            color: #000;
+        }
+        h1 {
+            font-size: 14px;
+        }
+        p {
+            font-size: 12px;
+        }
+    </style>
+
+    <h1><u>Console Command Scheduler:</u> {% if commandName is defined %} {{ commandName }} {% endif %} {% if commandArguments is defined %} {{ commandArguments }} {% endif %}</h1>
+    <h4>Start date : {% if dateTime is defined %} {{ dateTime }} {% endif %}</h4>
+    <h4>Duration : {% if duration is defined %} {{ duration }} {% endif %}</h4>
+    <h4>Return Code : {% if returnCode is defined %} {{ returnCode }} {% endif %}</h4>
+
+    <h3><u>Command details:</u></h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Command</th>
+            <th>Arguments</th>
+            <th>Duration</th>
+            <th>Return Code</th>
+            <th>Output</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                {% for item in data.outputs %}
+                    <td>{% if item.dateTime is defined %} {{ item.dateTime }} {% endif %}</td>
+                    <td>{% if item.command is defined %} {{ item.command }} {% endif %}</td>
+                    <td>{% if item.commandArguments is defined %} {{ item.commandArguments }} {% endif %}</td>
+                    <td>{% if item.duration is defined %} {{ item.duration }} {% endif %}</td>
+                    <td>{% if item.returnCode is defined %} {{ item.returnCode }} {% endif %}</td>
+                    <td>{% if item.commandOutput is defined %} {{ item.commandOutput }} {% endif %}</td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+{% endapply %}

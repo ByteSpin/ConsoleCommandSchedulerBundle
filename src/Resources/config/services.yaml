@@ -27,6 +27,19 @@ services:
         arguments:
             $projectDir: '%kernel.project_dir%'
             $cache: '@cache.app'
+    ByteSpin\ConsoleCommandSchedulerBundle\Job\JobOutputCollector:
+        autowire: true
+        autoconfigure: true
+        public: false
+    ByteSpin\ConsoleCommandSchedulerBundle\Processor\NotificationProcessor:
+        autowire: true
+        autoconfigure: true
+        public: false
+        arguments:
+            $mailer: '@Symfony\Component\Mailer\MailerInterface'
+            $outputCollector: '@ByteSpin\ConsoleCommandSchedulerBundle\Job\JobOutputCollector'
+            $mailFrom: '%env(BYTESPIN_FROM_EMAIL)%'
+            $schedulerRepository: '@ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository'
     ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository:
         autowire: true
         autoconfigure: true
@@ -49,6 +62,14 @@ services:
         tags: [ 'controller.service_arguments' ]
         arguments:
             $managerRegistry: '@Doctrine\Persistence\ManagerRegistry'
+            $notificationProcessor: '@ByteSpin\ConsoleCommandSchedulerBundle\Processor\NotificationProcessor'
+    ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber\ScheduledConsoleCommandOutputEventSubscriber:
+        autowire: true
+        autoconfigure: true
+        public: false
+        tags: [ 'controller.service_arguments' ]
+        arguments:
+            $jobOutputCollector: '@ByteSpin\ConsoleCommandSchedulerBundle\Job\JobOutputCollector'
     ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber\SchedulerEasyAdminEventSubscriber:
         autowire: true
         autoconfigure: true

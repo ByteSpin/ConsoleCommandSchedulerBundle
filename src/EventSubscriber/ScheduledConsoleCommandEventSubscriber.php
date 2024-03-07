@@ -15,15 +15,18 @@ namespace ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber;
 
 use ByteSpin\ConsoleCommandSchedulerBundle\Entity\SchedulerLog;
 use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandGenericEvent;
+use ByteSpin\ConsoleCommandSchedulerBundle\Processor\NotificationProcessor;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 readonly class ScheduledConsoleCommandEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private ManagerRegistry $managerRegistry,
+        private NotificationProcessor $notificationProcessor,
     ) {
     }
 
@@ -33,6 +36,9 @@ readonly class ScheduledConsoleCommandEventSubscriber implements EventSubscriber
             'bytespin.log.scheduled.console.command' => [
                 ['logScheduledConsoleCommand'],
             ],
+            'bytespin.after.scheduled.console.command' => [
+                ['notifyScheduledConsoleCommand'],
+            ]
         ];
     }
 
@@ -56,6 +62,21 @@ readonly class ScheduledConsoleCommandEventSubscriber implements EventSubscriber
             $entityManager->flush();
         } catch (Exception $e) {
             throw new Exception('Error while logging Scheduled Console Command. Error was: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * @throws Exception|TransportExceptionInterface
+     */
+    public function notifyScheduledConsoleCommand(GenericEvent $event): void
+    {
+        /** @var ScheduledConsoleCommandGenericEvent $consoleCommand */
+        $consoleCommand = $event->getSubject();
+
+        try {
+            $this->notificationProcessor->sendNotification($consoleCommand);
+        } catch (Exception $e) {
+            throw new Exception('Error while sending notification. Error was: ' . $e->getMessage());
         }
     }
 }

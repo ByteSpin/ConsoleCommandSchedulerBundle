@@ -13,6 +13,7 @@
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle;
 
+use ByteSpin\ConsoleCommandSchedulerBundle\DependencyInjection\Compiler\TwigPathCompilerPass;
 use Exception;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -27,7 +28,7 @@ class ConsoleCommandSchedulerBundle extends Bundle
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
-
+        $container->addCompilerPass(new TwigPathCompilerPass());
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/Resources/config'));
         $loader->load('services.yaml');
     }
