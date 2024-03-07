@@ -24,10 +24,10 @@ final class ScheduledConsoleCommandOutputEvent extends Event
         public readonly string $commandId,
         public readonly DateTime $dateTime,
         public readonly string $command,
-        public readonly ?string $commandArguments,
-        public readonly ?string $duration,
-        public readonly ?string $returnCode,
-        public readonly string $commandOutput,
+        public readonly array $commandArguments = [],
+        public readonly ?string $duration = '',
+        public readonly ?string $returnCode = '',
+        public readonly string $commandOutput = '',
     ) {
     }
 }
