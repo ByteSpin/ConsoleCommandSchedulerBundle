@@ -17,6 +17,7 @@ namespace ByteSpin\ConsoleCommandSchedulerBundle\MessageHandler;
 
 use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandGenericEvent;
 use ByteSpin\ConsoleCommandSchedulerBundle\Message\ExecuteConsoleCommand;
+use ByteSpin\ConsoleCommandSchedulerBundle\Converter\DurationConverter;
 use DateTime;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -28,6 +29,7 @@ use Symfony\Component\Process\Process;
 #[AsMessageHandler]
 final readonly class ExecuteConsoleCommandHandler
 {
+
     public function __construct(
         #[Autowire('%kernel.project_dir%')]
         private string $projectDir,
@@ -36,6 +38,7 @@ final readonly class ExecuteConsoleCommandHandler
         #[Autowire('%kernel.environment%')]
         private string $environment,
         private EventDispatcherInterface $eventDispatcher,
+        private DurationConverter $durationConverter,
     ) {
     }
 
@@ -112,7 +115,7 @@ final readonly class ExecuteConsoleCommandHandler
                 $message->commandArguments,
                 (new DateTime())->setTimestamp($start),
                 (new DateTime())->setTimestamp($end),
-                $this->durationConverter($duration),
+                $this->durationConverter->convert($duration),
                 $process->getExitCode(),
                 $logFile,
                 $message->id,
@@ -151,13 +154,24 @@ final readonly class ExecuteConsoleCommandHandler
             if ($process->getExitCode() === 0) {
                 file_put_contents(
                     $logFile,
-                    (new DateTime())->format('Y-m-d H:i:s') . ' ' . 'Command ' . $messageLog . ' executed successfully in ' . $duration . ' seconds' . PHP_EOL,
+                    (new DateTime())->format('Y-m-d H:i:s') .
+                    ' ' .
+                    'Command ' .
+                    $messageLog .
+                    ' executed successfully in ' .
+                    $duration . ' seconds' .
+                    PHP_EOL,
                     FILE_APPEND
                 );
             } else {
                 file_put_contents(
                     $logFile,
-                    (new DateTime())->format('Y-m-d H:i:s') . ' ' . 'Command ' . $messageLog . ' failure: ' . $process->getExitCode() . PHP_EOL,
+                    (new DateTime())->format('Y-m-d H:i:s') .
+                    ' ' . 'Command ' .
+                    $messageLog .
+                    ' failure: ' .
+                    $process->getExitCode() .
+                    PHP_EOL,
                     FILE_APPEND
                 );
             }
@@ -168,26 +182,5 @@ final readonly class ExecuteConsoleCommandHandler
                 FILE_APPEND
             );
         }
-    }
-
-    private function durationConverter(int $seconds): string
-    {
-        $s = ($seconds < 1) ? 1 : $seconds;
-        $h = intdiv($s, 3600);
-        $m = intdiv($s % 3600, 60);
-        $rs = $s % 60;
-
-        $result = [];
-        if ($h > 0) {
-            $result[] = "$h h";
-        }
-        if ($m > 0) {
-            $result[] = "$m min.";
-        }
-        if ($rs > 0 || count($result) == 0) {
-            $result[] = "$rs sec.";
-        }
-
-        return implode(' ', $result);
     }
 }

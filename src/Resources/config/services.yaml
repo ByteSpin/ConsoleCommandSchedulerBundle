@@ -82,9 +82,13 @@ services:
         tags: [ 'controller.service_arguments' ]
         arguments:
             $eventDispatcher: '@Symfony\Component\EventDispatcher\EventDispatcherInterface'
+            $durationConverter: '@ByteSpin\ConsoleCommandSchedulerBundle\Converter\DurationConverter'
     ByteSpin\ConsoleCommandSchedulerBundle\Command\ConfigureBundleCommand:
         tags:
             - { name: 'console.command', command: 'bytespin:configure-console-command-scheduler' }
-
+    ByteSpin\ConsoleCommandSchedulerBundle\Converter\DurationConverter:
+        autowire: true
+        autoconfigure: true
+        public: false
 
 
