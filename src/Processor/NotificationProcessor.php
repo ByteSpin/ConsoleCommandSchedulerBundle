@@ -56,7 +56,7 @@ readonly class NotificationProcessor
                         default => $jobConfigData->getJobTitle()
                     }
                 )
-                ->htmlTemplate('@ByteSpinConsoleCommandSchedulerBundle/templates/email/notification.html.twig')
+                ->htmlTemplate('@ByteSpinConsoleCommandSchedulerBundle/email/notification.html.twig')
                 ->context([
                     'dateTime' => $consoleCommand->start->format('d/m/Y'),
                     'commandName' => $consoleCommand->command,

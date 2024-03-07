@@ -20,6 +20,7 @@ class TwigPathCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
+        dump('ByteSpin Compiler Pass Execution');
         if (!$container->hasDefinition('twig.loader.filesystem')) {
             return;
         }
