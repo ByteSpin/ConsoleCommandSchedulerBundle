@@ -14,6 +14,7 @@
 namespace ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber;
 
 use ByteSpin\ConsoleCommandSchedulerBundle\Job\JobOutputCollector;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandOutputEvent;
 
@@ -31,11 +32,17 @@ class ScheduledConsoleCommandOutputEventSubscriber implements EventSubscriberInt
         ];
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function onCommandOutput(ScheduledConsoleCommandOutputEvent $event): void
     {
         $output = [
             'dateTime' => $event->dateTime,
             'command' => $event->command,
+            'commandArguments' => $event->commandArguments,
+            'duration' => $event->duration,
+            'returnCode' => $event->returnCode,
             'output' => $event->commandOutput
         ]
         ;
