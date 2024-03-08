@@ -43,6 +43,10 @@ readonly class NotificationProcessor
         $item = $this->cachePool->getItem((string)$consoleCommand->id);
         $outputs = $item->isHit() ? $item->get() : [];
 
+        $hasNonZeroReturnCode = array_reduce($outputs, function ($carry, $item) {
+            return $carry || ($item["returnCode"] != 0);
+        }, false);
+
         $jobConfigData = $this->schedulerRepository->find($consoleCommand->id);
 
         if ($jobConfigData->getSendEmail() && !empty($jobConfigData->getEmail())) {
@@ -51,9 +55,10 @@ readonly class NotificationProcessor
                 ->to($jobConfigData->getEmail())
                 ->subject(
                     '[' .
-                    match ($consoleCommand->returnCode) {
-                        0 => 'SUCCESS',
-                        default => 'FAILURE'
+                    match (true) {
+                        $consoleCommand->returnCode === 0 && !$hasNonZeroReturnCode => 'SUCCESS',
+                        $consoleCommand->returnCode === 0 && $hasNonZeroReturnCode => 'WARNING',
+                        default => 'FAILURE',
                     } .
                     '] ByteSpin Scheduled Console Command:' .
                     match ($jobConfigData->getJobTitle()) {

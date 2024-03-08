@@ -1,65 +1,67 @@
 {% apply inline_css %}
     <style>
-        root {
+        body {
             font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
             color: #000;
         }
-        h1 {
+        h1, h3 {
+            font-size: 16px;
+            margin-bottom: 0.5em;
+        }
+        p, pre {
             font-size: 14px;
         }
-        p {
-            font-size: 12px;
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
         }
-        td {
-            border: 1px solid #000000;
+        th, td {
+            border: 1px solid #ddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
     </style>
 
-    <h1><u>Console Command Scheduler:</u> {% if commandName is defined %} {{ commandName }} {% endif %} {% if commandArguments is defined %} {{ commandArguments }} {% endif %}</h1>
-    <ul>
-        <li>Start date : {% if dateTime is defined %} {{ dateTime }} {% endif %}</li>
-        <li>Duration : {% if duration is defined %} {{ duration }} {% endif %}</li>
-        <li>Return Code : {% if returnCode is defined %} {{ returnCode }} {% endif %}</li>
-    </ul>
+    <h1><u>Console Command Scheduler:</u></h1>
 
-    <h3><u>Command details:</u></h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Command</th>
+            <th>Arguments</th>
+            <th>Duration</th>
+            <th>Return Code</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in outputs %}
+            <tr>
+                <td>{% if dateTime is defined %} {{ dateTime }} {% endif %}</td>
+                <td>{% if commandName is defined %} {{ commandName }} {% endif %}</td>
+                <td>{% if commandArguments is defined %} {{ commandArguments }} {% endif %}</td>
+                <td>{% if duration is defined %} {{ duration }} {% endif %}</td>
+                <td>{% if returnCode is defined %} {{ returnCode }} {% endif %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <h1><u>Command details:</u></h1>
     {% if outputs is empty %}
         <p>
-            No detailed output was provided!<br/>
+            No detailed command output was provided!<br/>
             If you want to provide detailed output, don't forget to dispatch the correct ByteSpin event in your commands!<br/>
-            For example:<br/>
+            See the doc to learn how to do this.<br/>
         </p>
-        <pre>
-                namespace App\MyCommand;
-
-                use Symfony\Component\Console\Command\Command;
-                use Symfony\Component\Console\Input\InputInterface;
-                use Symfony\Component\Console\Output\OutputInterface;
-                use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-                use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandOutputEvent;
-                use ByteSpin\ConsoleCommandSchedulerBundle\Converter\DurationConverter;
-
-                public function __construct(
-                    private EventDispatcherInterface $dispatcher,
-                    private DurationConverter $durationConverter,
-                ) {
-                    parent::__construct();
-                }
-
-                protected function execute(InputInterface $input, OutputInterface $output): int
-                {
-                // you command code
-                $outputText = "Resultat de la commande";
-
-
-
-                // event for result recording
-                $this->dispatcher->dispatch(new ScheduledConsoleCommandOutputEvent(static::$defaultName, $outputText));
-
-        return Command::SUCCESS;
     }
-
-            </pre>
     {% else %}
         <table>
             <thead>
@@ -77,8 +79,12 @@
             <tr>
                 <td>{% if item.dateTime is defined %} {{ item.dateTime|date('Y-m-d H:i:s') }} {% endif %}</td>
                 <td>{% if item.command is defined %} {{ item.command }} {% endif %}</td>
-                <td>{% if item.commandArguments is defined %} {{ item.commandArguments }} {% endif %}</td>
-                <td>{% if item.duration is defined %} {{ item.duration }} {% endif %}</td>
+                <td>{% if item.commandArguments is defined %}
+                        {% for key, value in item.commandArguments %}
+                            {{ key }}={{ value }}{% if not loop.last %} {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </td>                <td>{% if item.duration is defined %} {{ item.duration }} {% endif %}</td>
                 <td>{% if item.returnCode is defined %} {{ item.returnCode }} {% endif %}</td>
                 <td>{% if item.commandOutput is defined %} {{ item.commandOutput }} {% endif %}</td>
             </tr>
