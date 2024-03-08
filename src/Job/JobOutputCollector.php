@@ -15,7 +15,7 @@ namespace ByteSpin\ConsoleCommandSchedulerBundle\Job;
 
 class JobOutputCollector
 {
-    private array $outputs = [];
+    public array $outputs = [];
 
     public function addOutput($commandId, $output): void
     {

@@ -10,12 +10,17 @@
         p {
             font-size: 12px;
         }
+        td {
+            border: 1px solid #000000;
+        }
     </style>
 
     <h1><u>Console Command Scheduler:</u> {% if commandName is defined %} {{ commandName }} {% endif %} {% if commandArguments is defined %} {{ commandArguments }} {% endif %}</h1>
-    <h4>Start date : {% if dateTime is defined %} {{ dateTime }} {% endif %}</h4>
-    <h4>Duration : {% if duration is defined %} {{ duration }} {% endif %}</h4>
-    <h4>Return Code : {% if returnCode is defined %} {{ returnCode }} {% endif %}</h4>
+    <ul>
+        <li>Start date : {% if dateTime is defined %} {{ dateTime }} {% endif %}</li>
+        <li>Duration : {% if duration is defined %} {{ duration }} {% endif %}</li>
+        <li>Return Code : {% if returnCode is defined %} {{ returnCode }} {% endif %}</li>
+    </ul>
 
     <h3><u>Command details:</u></h3>
     {% if outputs is empty %}
@@ -23,6 +28,7 @@
             No detailed output was provided!<br/>
             If you want to provide detailed output, don't forget to dispatch the correct ByteSpin event in your commands!<br/>
             For example:<br/>
+        </p>
         <pre>
                 namespace App\MyCommand;
 
@@ -54,8 +60,6 @@
     }
 
             </pre>
-
-        </p>
     {% else %}
         <table>
             <thead>
