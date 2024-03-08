@@ -20,7 +20,7 @@ use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandOutputEv
 class ScheduledConsoleCommandOutputEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        public JobOutputCollector $jobOutputCollector,
+        public JobOutputCollector $outputCollector,
     ) {
     }
 
@@ -40,6 +40,6 @@ class ScheduledConsoleCommandOutputEventSubscriber implements EventSubscriberInt
         ]
         ;
 
-        $this->jobOutputCollector->addOutput($event->commandId, $output);
+        $this->outputCollector->addOutput($event->commandId, $output);
     }
 }
