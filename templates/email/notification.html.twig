@@ -4,8 +4,12 @@
             font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
             color: #000;
         }
-        h1, h3 {
-            font-size: 16px;
+        h1 {
+            font-size: 24px;
+            margin-bottom: 0.5em;
+        }
+        h3 {
+            font-size: 18px;
             margin-bottom: 0.5em;
         }
         p, pre {
@@ -29,8 +33,9 @@
         }
     </style>
 
-    <h1><u>Console Command Scheduler:</u></h1>
+    <h1>Console Command Scheduler</h1>
 
+    <h3><u>Master Command</u></h3>
     <table>
         <thead>
         <tr>
@@ -52,7 +57,7 @@
         </tbody>
     </table>
 
-    <h1><u>Command details:</u></h1>
+    <h3><u>Command Details</u></h3>
     {% if outputs is empty %}
         <p>
             No detailed command output was provided!<br/>
@@ -77,12 +82,15 @@
             <tr>
                 <td>{% if item.dateTime is defined %} {{ item.dateTime|date('Y-m-d H:i:s') }} {% endif %}</td>
                 <td>{% if item.command is defined %} {{ item.command }} {% endif %}</td>
-                <td>{% if item.commandArguments is defined %}
+                <td>{% item.commandType is defined and item.commandType = 'master' %}
+                        {% if commandArguments is defined %} {{ commandArguments }} {% endif %}
+                    {%  else %}
                         {% for key, value in item.commandArguments %}
                             {{ key }}={{ value }}{% if not loop.last %} {% endif %}
                         {% endfor %}
                     {% endif %}
-                </td>                <td>{% if item.duration is defined %} {{ item.duration }} {% endif %}</td>
+                </td>
+                <td>{% if item.duration is defined %} {{ item.duration }} {% endif %}</td>
                 <td>{% if item.returnCode is defined %} {{ item.returnCode }} {% endif %}</td>
                 <td>{% if item.commandOutput is defined %} {{ item.commandOutput }} {% endif %}</td>
             </tr>

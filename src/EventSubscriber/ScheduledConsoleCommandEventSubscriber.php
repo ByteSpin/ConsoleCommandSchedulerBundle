@@ -18,6 +18,7 @@ use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandGenericE
 use ByteSpin\ConsoleCommandSchedulerBundle\Processor\NotificationProcessor;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
@@ -66,7 +67,7 @@ readonly class ScheduledConsoleCommandEventSubscriber implements EventSubscriber
     }
 
     /**
-     * @throws Exception|TransportExceptionInterface
+     * @throws Exception|TransportExceptionInterface|InvalidArgumentException
      */
     public function notifyScheduledConsoleCommand(GenericEvent $event): void
     {

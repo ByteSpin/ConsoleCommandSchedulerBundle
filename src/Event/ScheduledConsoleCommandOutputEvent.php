@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Event;
 
+use ByteSpin\ConsoleCommandSchedulerBundle\Model\CommandType;
 use DateTime;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -22,6 +23,7 @@ final class ScheduledConsoleCommandOutputEvent extends Event
 {
     public function __construct(
         public readonly string $commandId,
+        public readonly CommandType $commandType,
         public readonly DateTime $dateTime,
         public readonly string $command,
         public readonly array $commandArguments = [],
