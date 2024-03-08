@@ -30,7 +30,8 @@ services:
     ByteSpin\ConsoleCommandSchedulerBundle\Job\JobOutputCollector:
         autowire: true
         autoconfigure: true
-        public: true
+        public: false
+        shared: true
     ByteSpin\ConsoleCommandSchedulerBundle\Processor\NotificationProcessor:
         autowire: true
         autoconfigure: true
