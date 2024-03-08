@@ -82,7 +82,7 @@
             <tr>
                 <td>{% if item.dateTime is defined %} {{ item.dateTime|date('Y-m-d H:i:s') }} {% endif %}</td>
                 <td>{% if item.command is defined %} {{ item.command }} {% endif %}</td>
-                <td>{% item.commandType is defined and item.commandType = 'master' %}
+                <td>{% if item.commandType is defined and item.commandType.getCode() == 'master' %}
                         {% if commandArguments is defined %} {{ commandArguments }} {% endif %}
                     {%  else %}
                         {% for key, value in item.commandArguments %}

@@ -39,6 +39,7 @@ class ScheduledConsoleCommandOutputEventSubscriber implements EventSubscriberInt
     {
         $output = [
             'dateTime' => $event->dateTime,
+            'commandType' => $event->commandType,
             'command' => $event->command,
             'commandArguments' => $event->commandArguments,
             'duration' => $event->duration,
