@@ -42,7 +42,6 @@
         </tr>
         </thead>
         <tbody>
-        {% for item in outputs %}
             <tr>
                 <td>{% if dateTime is defined %} {{ dateTime }} {% endif %}</td>
                 <td>{% if commandName is defined %} {{ commandName }} {% endif %}</td>
@@ -50,7 +49,6 @@
                 <td>{% if duration is defined %} {{ duration }} {% endif %}</td>
                 <td>{% if returnCode is defined %} {{ returnCode }} {% endif %}</td>
             </tr>
-        {% endfor %}
         </tbody>
     </table>
 
