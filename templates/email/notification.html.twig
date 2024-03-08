@@ -73,16 +73,16 @@
             </tr>
             </thead>
             <tbody>
+            {% for item in outputs %}
             <tr>
-                {% for item in outputs %}
-                    <td>{% if item.dateTime is defined %} {{ item.dateTime }} {% endif %}</td>
-                    <td>{% if item.command is defined %} {{ item.command }} {% endif %}</td>
-                    <td>{% if item.commandArguments is defined %} {{ item.commandArguments }} {% endif %}</td>
-                    <td>{% if item.duration is defined %} {{ item.duration }} {% endif %}</td>
-                    <td>{% if item.returnCode is defined %} {{ item.returnCode }} {% endif %}</td>
-                    <td>{% if item.commandOutput is defined %} {{ item.commandOutput }} {% endif %}</td>
-                {% endfor %}
+                <td>{% if item.dateTime is defined %} {{ item.dateTime|date('Y-m-d H:i:s') }} {% endif %}</td>
+                <td>{% if item.command is defined %} {{ item.command }} {% endif %}</td>
+                <td>{% if item.commandArguments is defined %} {{ item.commandArguments }} {% endif %}</td>
+                <td>{% if item.duration is defined %} {{ item.duration }} {% endif %}</td>
+                <td>{% if item.returnCode is defined %} {{ item.returnCode }} {% endif %}</td>
+                <td>{% if item.commandOutput is defined %} {{ item.commandOutput }} {% endif %}</td>
             </tr>
+            {% endfor %}
             </tbody>
         </table>
     {% endif %}
