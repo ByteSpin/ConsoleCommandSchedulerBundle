@@ -16,6 +16,8 @@ namespace ByteSpin\ConsoleCommandSchedulerBundle\Processor;
 use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandGenericEvent;
 use ByteSpin\ConsoleCommandSchedulerBundle\Job\JobOutputCollector;
 use ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository;
+use InvalidArgumentException;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
@@ -25,7 +27,7 @@ readonly class NotificationProcessor
 {
     public function __construct(
         private MailerInterface $mailer,
-        private JobOutputCollector $outputCollector,
+        private CacheItemPoolInterface $cachePool,
         #[Autowire(env:'BYTESPIN_FROM_EMAIL')]
         private string $mailFrom,
         private SchedulerRepository $schedulerRepository,
@@ -33,11 +35,14 @@ readonly class NotificationProcessor
     }
 
     /**
-     * @throws TransportExceptionInterface
+     * @throws TransportExceptionInterface|InvalidArgumentException
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function sendNotification(ScheduledConsoleCommandGenericEvent $consoleCommand): void
     {
-        $outputs = $this->outputCollector->getOutputs($consoleCommand->id);
+        $item = $this->cachePool->getItem((string)$consoleCommand->id);
+        $outputs = $item->isHit() ? $item->get() : [];
+
         $jobConfigData = $this->schedulerRepository->find($consoleCommand->id);
 
         if ($jobConfigData->getSendEmail() && !empty($jobConfigData->getEmail())) {
@@ -73,8 +78,8 @@ readonly class NotificationProcessor
 
             $this->mailer->send($email);
 
-            // empty output for current command
-            $this->outputCollector->clearOutputs($consoleCommand->id);
+            // empty output in cache for current command
+            $this->cachePool->deleteItem((string)$consoleCommand->id);
         }
     }
 }

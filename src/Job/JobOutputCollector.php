@@ -13,26 +13,47 @@
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Job;
 
-class JobOutputCollector
-{
-    public array $outputs = [];
+use Psr\Cache\CacheItemPoolInterface;
+use Psr\Cache\InvalidArgumentException;
 
+readonly class JobOutputCollector
+{
+    public function __construct(
+        private CacheItemPoolInterface $cachePool,
+    ) {
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
     public function addOutput($commandId, $output): void
     {
-        $this->outputs[$commandId][] = $output;
+        $item = $this->cachePool->getItem((string)$commandId);
+
+        $outputs = $item->isHit() ? $item->get() : [];
+        $outputs[] = $output;
+
+        $item->set($outputs);
+        $this->cachePool->save($item);
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function getOutputs(int $commandId)
     {
-        return $this->outputs[$commandId] ?? null;
+        $item = $this->cachePool->getItem((string)$commandId);
+        if ($item->isHit()) {
+            return $item->get();
+        }
+        return [];
     }
 
-    public function clearOutputs(?int $commandId = null): void
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function clearOutputs(int $commandId): void
     {
-        if ($commandId === null) {
-            $this->outputs = [];
-        } else {
-            unset($this->outputs[$commandId]);
-        }
+        $this->cachePool->deleteItem((string)$commandId);
     }
 }

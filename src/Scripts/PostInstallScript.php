@@ -83,6 +83,17 @@ class PostInstallScript
 
         file_put_contents($doctrineConfigFile, Yaml::dump($config, 10, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
         self::updateBundlesFile($projectBasePath . '/config/bundles.php');
+
+        echo "We are about to add or update the cache configuration for ByteSpin Console Command Scheduler Bundle in your byte_spin_console_command_scheduler.yaml file.".PHP_EOL;
+        echo "Do you want to proceed? (yes/no): ";
+        $line = fgets(fopen("php://stdin", "r"));
+        if (trim(strtolower($line)) != 'yes') {
+            echo "Aborting cache configuration update." . PHP_EOL;
+            return;
+        }
+
+        // Ajout ou mise à jour de la configuration du cache
+        self::addOrUpdateCacheConfiguration(getcwd());
     }
 
     private static function askForDBALConnection($connections)
@@ -123,5 +134,26 @@ class PostInstallScript
         } else {
             echo "ByteSpin\\ConsoleCommandSchedulerBundle is already defined in bundles.php" . PHP_EOL;
         }
+    }
+
+    public static function addOrUpdateCacheConfiguration(string $projectBasePath): void
+    {
+        $cacheConfigFile = $projectBasePath . '/config/packages/bytespin_console_command_scheduler.yaml';
+
+        $config = [];
+        if (file_exists($cacheConfigFile)) {
+            $config = Yaml::parseFile($cacheConfigFile);
+        }
+
+        // Ajout ou mise à jour de la configuration de cache
+        $config['framework']['cache']['pools']['bytespin.console_command_scheduler.cache'] = [
+            'adapter' => 'cache.adapter.filesystem',
+            'public' => false,
+        ];
+
+        echo "Adding or updating cache configuration for ByteSpin Console Command Scheduler Bundle.".PHP_EOL;
+        file_put_contents($cacheConfigFile, Yaml::dump($config, 10, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
+
+        echo "Cache configuration added or updated successfully.".PHP_EOL;
     }
 }

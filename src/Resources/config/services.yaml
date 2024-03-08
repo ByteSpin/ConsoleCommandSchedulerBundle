@@ -32,13 +32,15 @@ services:
         autoconfigure: true
         public: false
         shared: true
+        arguments:
+            $cachePool: '@cache.adapter.filesystem'
     ByteSpin\ConsoleCommandSchedulerBundle\Processor\NotificationProcessor:
         autowire: true
         autoconfigure: true
         public: false
         arguments:
             $mailer: '@Symfony\Component\Mailer\MailerInterface'
-            $outputCollector: '@ByteSpin\ConsoleCommandSchedulerBundle\Job\JobOutputCollector'
+            $cachePool: '@cache.adapter.filesystem'
             $mailFrom: '%env(BYTESPIN_FROM_EMAIL)%'
             $schedulerRepository: '@ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository'
     ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository:
