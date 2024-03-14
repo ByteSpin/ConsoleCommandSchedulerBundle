@@ -1,0 +1,101 @@
+{% apply inline_css %}
+    <style>
+        body {
+            font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+            color: #000;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 0.5em;
+        }
+        h3 {
+            font-size: 18px;
+            margin-bottom: 0.5em;
+        }
+        p, pre {
+            font-size: 14px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+
+    <h1>Console Command Scheduler</h1>
+
+    <h3><u>Master Command</u></h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Command</th>
+            <th>Arguments</th>
+            <th>Duration</th>
+            <th>Return Code</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{% if dateTime is defined %} {{ dateTime }} {% endif %}</td>
+                <td>{% if commandName is defined %} {{ commandName }} {% endif %}</td>
+                <td>{% if commandArguments is defined %} {{ commandArguments }} {% endif %}</td>
+                <td>{% if duration is defined %} {{ duration }} {% endif %}</td>
+                <td>{% if returnCode is defined %} {{ returnCode }} {% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3><u>Command Details</u></h3>
+    {% if outputs is empty %}
+        <p>
+            No detailed command output was provided!<br/>
+            If you want to provide detailed output, don't forget to dispatch the correct ByteSpin event in your commands!<br/>
+            See the doc to learn how to do this.<br/>
+        </p>
+    }
+    {% else %}
+        <table>
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Command</th>
+                <th>Arguments</th>
+                <th>Duration</th>
+                <th>Return Code</th>
+                <th>Output</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in outputs %}
+            <tr>
+                <td>{% if item.dateTime is defined %} {{ item.dateTime|date('Y-m-d H:i:s') }} {% endif %}</td>
+                <td>{% if item.command is defined %} {{ item.command }} {% endif %}</td>
+                <td>{% if item.commandType is defined and item.commandType.getCode() == 'master' %}
+                        {% if commandArguments is defined %} {{ commandArguments }} {% endif %}
+                    {%  else %}
+                        {% for key, value in item.commandArguments %}
+                            {{ key }}={{ value }}{% if not loop.last %} {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </td>
+                <td>{% if item.duration is defined %} {{ item.duration }} {% endif %}</td>
+                <td>{% if item.returnCode is defined %} {{ item.returnCode }} {% endif %}</td>
+                <td>{% if item.commandOutput is defined %} {{ item.commandOutput }} {% endif %}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endapply %}

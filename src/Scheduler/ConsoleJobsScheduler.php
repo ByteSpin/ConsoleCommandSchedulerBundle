@@ -66,7 +66,7 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
 
             // add job id to arguments for optional use in run commands
             if ($this->hasJobIdOptionInCommand($command)) {
-                $arguments[] = '--job-id='.$id;
+                $arguments[] = '--job-id=' . $id;
             }
 
             $from_date = ($item->getExecutionFromDate())
@@ -84,8 +84,8 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
                 : $from_time
             ;
 
-            $from = new DateTimeImmutable($from_date_str.' '.$from_time_str, new DateTimeZone('Europe/Paris'));
 
+            $from = new \DateTimeImmutable($from_date_str . ' ' . $from_time_str, new \DateTimeZone('Europe/Paris'));
             $until_date = ($item->getExecutionUntilDate())
                 ?: ''
             ;
@@ -102,8 +102,8 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
             ;
 
             $until = ('' === $until_date_str && '' === $until_time_str)
-                ? new DateTimeImmutable('3000-01-01')
-                : new DateTimeImmutable($until_date_str.' '.$until_time_str, new DateTimeZone('Europe/Paris'))
+                ? new \DateTimeImmutable('3000-01-01')
+                : new \DateTimeImmutable($until_date_str . ' ' . $until_time_str, new \DateTimeZone('Europe/Paris'))
             ;
 
             switch ($item->getExecutionType()) {

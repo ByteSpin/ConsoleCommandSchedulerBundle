@@ -59,6 +59,16 @@ class Scheduler
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $log_file = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $send_email = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $email = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $job_title = null;
+
+
     public function getId(): ?int
     {
         return $this->id;
@@ -226,5 +236,29 @@ class Scheduler
     public function setNoDbLog(?bool $noDbLog): void
     {
         $this->noDbLog = $noDbLog;
+    }
+    public function getSendEmail(): ?bool
+    {
+        return $this->send_email;
+    }
+    public function setSendEmail(?bool $send_email): void
+    {
+        $this->send_email = $send_email;
+    }
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+    public function setEmail(?string $email): void
+    {
+        $this->email = $email;
+    }
+    public function getJobTitle(): ?string
+    {
+        return $this->job_title;
+    }
+    public function setJobTitle(?string $job_title): void
+    {
+        $this->job_title = $job_title;
     }
 }

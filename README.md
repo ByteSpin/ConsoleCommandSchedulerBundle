@@ -9,10 +9,12 @@ ByteSpin/ConsoleCommandSchedulerBundle is a Symfony 6.3 simple bundle that allow
 - Log all console commands data (last execution time, duration, return code) in database and log file,
 - An admin interface is available with the help of EasyCorp/EasyAdmin bundle
 - Specific events are available for deeper integration with your application and/or notification system
+- An extendable notification system (by email)
+
 
 > [!NOTE]
 >
-> This project is still at alpha state and has not yet been fully tested outside its parent project.
+> This project is still at beta state.
 >
 > **Feel free to submit bug and/or pull requests!**
 >
@@ -22,8 +24,8 @@ Just keep in mind that I want to keep it as simple as possible!
 
 > [!IMPORTANT]
 >
-> Version 1.0.12 requires schema update.
-> Please run : 
+> Version 1.0.13 requires schema update.
+> Please run :
 > ```php php bin/console doctrine:schema:update --force```
 
 
@@ -52,7 +54,7 @@ For now, the bundle still lacks a custom recipe to manage database schema upgrad
 
 **Do not forget to update the database schema when updating the bundle**
 
-The last version that includes schema modifications is : 1.0.12
+The last version that includes schema modifications is : 1.0.13
 
 
 Manual bundle registration
@@ -69,7 +71,7 @@ To do this, follow these steps:
     ```php
     ByteSpin\ConsoleCommandSchedulerBundle\ConsoleCommandSchedulerBundle::class => ['all' => true],
     ```
-   
+
 3. Save the file. Your bundle is now registered and ready to be used in your application.
 
 Make sure to perform this step after you have installed the bundle using Composer, but before you use any of its features in your application.
@@ -126,9 +128,9 @@ Administration interface
 > [!NOTE]
 >
 > Please note that the administration interface is based on EasyAdmin symfony bundle.
-> 
+>
 > Because you might already use EasyAdmin in your project, no DashboardController is provided with the bundle.
-> 
+>
 > If you don't have one, generate it with ```bin/console make:admin:dashboard```
 
 You need to manually add the menu to your DashboardController.php file, for example:
@@ -152,12 +154,12 @@ Usage
 -----
 > [!NOTE]
 > The bundle makes use of the very new symfony/scheduler component that is said to be experimental on 6.3 symfony version
-> 
-> That will change in the forthcoming 6.4 release. 
-> 
+>
+> That will change in the forthcoming 6.4 release.
+>
 > The only documentation available for the moment is on the official symfony blog, with some useful examples.
 > Please read it carefully at https://symfony.com/blog/new-in-symfony-6-3-scheduler-component
-> 
+>
 > The 'from_date', 'from_time', 'until_date', 'until_time' bundle parameters are used to construct the expected scheduler trigger
 
 The administration interface provides two sections:
@@ -169,21 +171,21 @@ The administration interface provides two sections:
 
     - You can add/view/edit any entry in this list:
       ![Edit Console Command Scheduler section](docs/images/console_command_edit.png)
-      
-      - **Disabled**: if checked, the Console Command will be ignored by the scheduler 
-      - **Command**: this field lists all available console commands defined in your symfony project
-      - **Arguments**: provide any console command arguments if needed, separated by a space, as if you were typing them on the command line
-      - **Type**: here you select one of the two symfony/scheduler supported command type 
-        - 'Frequency' will generate a trigger of the RecurringMessage::every form,
-        - 'Cron' = will generate a trigger of the RecurringMessage::cron form
-      - **Frequency**: here you type the desired frequency
-        - If Type is 'Frequency' ; for example '10 seconds', '1 day', 'first monday of next month' (refer to the doc)
-        - If Type is 'Cron' ; use any cron expression
-      - **From Date, From Time, Until Date, Until Time** are used to generate the trigger. They are ignored in case of 'Cron' Type. 
-      - **Log File**: you can provide the log file name desired for the current command.
-        - Please note that you must not provide the full path, only the log filename.
-        - If not provided, a default %env%_scheduler.log is created.
-      - **No DB Log**: Enabling this option ensures that no logs related to this event are recorded in the database. However, standard logging to files will continue as usual. This feature is useful for reducing database clutter or when database logging is not required for specific events.
+
+        - **Disabled**: if checked, the Console Command will be ignored by the scheduler
+        - **Command**: this field lists all available console commands defined in your symfony project
+        - **Arguments**: provide any console command arguments if needed, separated by a space, as if you were typing them on the command line
+        - **Type**: here you select one of the two symfony/scheduler supported command type
+            - 'Frequency' will generate a trigger of the RecurringMessage::every form,
+            - 'Cron' = will generate a trigger of the RecurringMessage::cron form
+        - **Frequency**: here you type the desired frequency
+            - If Type is 'Frequency' ; for example '10 seconds', '1 day', 'first monday of next month' (refer to the doc)
+            - If Type is 'Cron' ; use any cron expression
+        - **From Date, From Time, Until Date, Until Time** are used to generate the trigger. They are ignored in case of 'Cron' Type.
+        - **Log File**: you can provide the log file name desired for the current command.
+            - Please note that you must not provide the full path, only the log filename.
+            - If not provided, a default %env%_scheduler.log is created.
+        - **No DB Log**: Enabling this option ensures that no logs related to this event are recorded in the database. However, standard logging to files will continue as usual. This feature is useful for reducing database clutter or when database logging is not required for specific events.
 
 - **<u>The log section:</u>** provides a simple log viewing interface
 
@@ -286,13 +288,13 @@ Provide a valid mail from address.
 Do not forget to configure the mailer dsn in you project.
 
 - The administration interface (easyadmin) now provides 3 more fields:
-  - send notification (bool)
-  - notification email (varchar)
-  - job title (varchar - it will override command name and parameters in the notification email)
+    - send notification (bool)
+    - notification email (varchar)
+    - job title (varchar - it will override command name and parameters in the notification email)
 
 - When notification is enabled and valid email address provided:
-  - a notification email will be sent at the end of console command execution
-  - the notification email will provide some details about your command execution (duration, return code, command, arguments etc.)
+    - a notification email will be sent at the end of console command execution
+    - the notification email will provide some details about your command execution (duration, return code, command, arguments etc.)
 
 The bundle natively only send details about the main console command scheduled by the bundle.
 In some cases, your command can run several sub-steps for which you may need more details in notification.
