@@ -274,6 +274,11 @@ readonly class MyEventSubscriber implements EventSubscriberInterface
 }
 ```
 
+Notification:
+-------------
+
+A new email notification system has been implemented in the bundle.
+
 
 Notification system
 -------------------
