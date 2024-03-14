@@ -15,8 +15,15 @@ declare(strict_types=1);
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Scheduler;
 
+use AllowDynamicProperties;
 use ByteSpin\ConsoleCommandSchedulerBundle\Message\ExecuteConsoleCommand;
 use ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository;
+use DateTime;
+use DateTimeImmutable;
+use DateTimeZone;
+use Exception;
+use ReflectionClass;
+use ReflectionException;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Lock\LockFactory;
@@ -26,7 +33,7 @@ use Symfony\Component\Scheduler\Schedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
-#[\AllowDynamicProperties] #[AsSchedule('scheduler')]
+#[AllowDynamicProperties] #[AsSchedule('scheduler')]
 final class ConsoleJobsScheduler implements ScheduleProviderInterface
 {
     public function __construct(
@@ -40,7 +47,7 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function getSchedule(): Schedule
     {
@@ -65,31 +72,31 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
             $from_date = ($item->getExecutionFromDate())
                 ?: ''
             ;
-            $from_date_str = ($from_date instanceof \DateTime)
+            $from_date_str = ($from_date instanceof DateTime)
                 ? $from_date->format('Y-m-d')
                 : $from_date
             ;
             $from_time = ($item->getExecutionFromTime())
                 ?: ''
             ;
-            $from_time_str = ($from_time instanceof \DateTime)
+            $from_time_str = ($from_time instanceof DateTime)
                 ? $from_time->format('H:i:s')
                 : $from_time
             ;
 
-            $from = new \DateTimeImmutable($from_date_str . ' ' . $from_time_str, new \DateTimeZone('Europe/Paris'));
 
+            $from = new \DateTimeImmutable($from_date_str . ' ' . $from_time_str, new \DateTimeZone('Europe/Paris'));
             $until_date = ($item->getExecutionUntilDate())
                 ?: ''
             ;
 
-            $until_date_str = ($until_date instanceof \DateTime)
+            $until_date_str = ($until_date instanceof DateTime)
                 ? $until_date->format('Y-m-d')
                 : $until_date
             ;
 
             $until_time = ($item->getExecutionUntilTime()) ?: '';
-            $until_time_str = ($until_time instanceof \DateTime)
+            $until_time_str = ($until_time instanceof DateTime)
                 ? $until_time->format('H:i:s')
                 : $until_time
             ;
@@ -111,7 +118,8 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
                             )
                         )
                         ;
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
+                        throw new Exception($e->getMessage());
                     }
                     break;
 
@@ -124,7 +132,8 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
                             )
                         )
                         ;
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
+                        throw new Exception($e->getMessage());
                     }
                     break;
             }
@@ -136,14 +145,14 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
     private function hasJobIdOptionInCommand(string $command): bool
     {
         $command = $this->application->find($command);
-        $reflectionClass = new \ReflectionClass(get_class($command));
+        $reflectionClass = new ReflectionClass(get_class($command));
 
         try {
             $method = $reflectionClass->getMethod('configure');
             $method->invoke($command);
 
             return $command->getDefinition()->hasOption('job-id');
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException $e) {
         }
 
         return false;

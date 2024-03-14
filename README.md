@@ -11,6 +11,7 @@ ByteSpin/ConsoleCommandSchedulerBundle is a Symfony 6.3 simple bundle that allow
 - Specific events are available for deeper integration with your application and/or notification system
 - An extendable notification system (by email)
 
+
 > [!NOTE]
 >
 > This project is still at beta state.

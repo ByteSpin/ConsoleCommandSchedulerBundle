@@ -88,6 +88,7 @@ final readonly class ExecuteConsoleCommandHandler
             foreach ($process as $type => $data) {
                 // keep common parts for further use
                 // distinguish error and standard log?
+
                 if ($process::OUT !== $type) {
                     file_put_contents(
                         $errorLogFile,
