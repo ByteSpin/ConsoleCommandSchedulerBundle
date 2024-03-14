@@ -21,7 +21,7 @@ Just keep in mind that I want to keep it as simple as possible!
 
 > [!IMPORTANT]
 >
-> Version 1.0.9 requires schema update.
+> Version 1.0.12 requires schema update.
 > Please run : 
 > ```php php bin/console doctrine:schema:update --force```
 
@@ -51,7 +51,7 @@ For now, the bundle still lacks a custom recipe to manage database schema upgrad
 
 **Do not forget to update the database schema when updating the bundle**
 
-The last version that includes schema modifications is : 1.0.9
+The last version that includes schema modifications is : 1.0.12
 
 
 Manual bundle registration
@@ -274,6 +274,85 @@ readonly class MyEventSubscriber implements EventSubscriberInterface
 }
 ```
 
+
+Notification system
+-------------------
+
+A new notification system is now provided by the bundle that can be extended in your own console commands.
+
+First, you will have to add a new environment variable in your project .env file: BYTESPIN_FROM_EMAIL=yourmailsender@mail.com
+Provide a valid mail from address.
+Do not forget to configure the mailer dsn in you project.
+
+- The administration interface (easyadmin) now provides 3 more fields:
+  - send notification (bool)
+  - notification email (varchar)
+  - job title (varchar - it will override command name and parameters in the notification email)
+
+- When notification is enabled and valid email address provided:
+  - a notification email will be sent at the end of console command execution
+  - the notification email will provide some details about your command execution (duration, return code, command, arguments etc.)
+
+The bundle natively only send details about the main console command scheduled by the bundle.
+In some cases, your command can run several sub-steps for which you may need more details in notification.
+For this, the bundle provides a new event you can dispatch in your commands
+
+```php
+(...)
+use ByteSpin\ConsoleCommandSchedulerBundle\Converter\DurationConverter;
+use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandOutputEvent;
+use ByteSpin\ConsoleCommandSchedulerBundle\Job\JobIdOptionTrait;
+use ByteSpin\ConsoleCommandSchedulerBundle\Model\CommandType;
+(...)
+class YourCommandScheduledByTheBundle extends Command
+{
+    // this is mandatory to get the job id that when executed by the bundle 
+    use JobIdOptionTrait;
+
+    public function __construct(
+        private readonly DurationConverter $durationConverter, // convert duration in human-readable format
+        private readonly EventDispatcherInterface $eventDispatcher,
+        (...)
+    ) {
+        parent::__construct();
+    }
+    
+        protected function configure(): void
+    {
+        (...)
+        // configure option provided by ByteSpin\ConsoleCommandSchedulerBundle\Job\JobIdOptionTrait
+        $this->configureJobIdOption();
+    }
+    
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        // get ByteSpin scheduled job id
+        $jobId = $input->getOption('job-id');
+        
+        $start = time();
+        $returnCode = $this->yourClass->yourMethod($yourParameter, ...);
+        $end = time();
+        $duration = $end - $start;
+        
+        // build the output event to be caught in notification email
+        $outputEvent = new ScheduledConsoleCommandOutputEvent(
+            commandId: $jobId,
+            commandType: CommandType::CHILD, // (can be of CommandType::MASTER if you want to insert the main command in your details)
+            dateTime: (new DateTime())->setTimestamp($start),
+            command: $this->getName(),
+            commandArguments: $commandArguments, // you can format them using $input->getOptions())
+            duration: $this->durationConverter->convert($duration),
+            returnCode: $returnCode // 0 is SUCCESS, any other values are FAILURE
+            commandOutput: 'You can catch here and format Exceptions or any output you need in notification email'
+        )
+        ;
+
+        $this->eventDispatcher->dispatch($outputEvent);
+    }
+            
+```
+
+That's it, you will get detailed notification in your mailbox!
 
 Licence
 -------
