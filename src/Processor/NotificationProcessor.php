@@ -49,7 +49,7 @@ readonly class NotificationProcessor
 
         $jobConfigData = $this->schedulerRepository->find($consoleCommand->id);
 
-        if ($jobConfigData->getSendEmail() && !empty($jobConfigData->getEmail())) {
+        if (null !== $jobConfigData && $jobConfigData->getSendEmail() && !empty($jobConfigData->getEmail())) {
             $email = (new TemplatedEmail())
                 ->from($this->mailFrom)
                 ->to($jobConfigData->getEmail())
