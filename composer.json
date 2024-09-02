@@ -39,8 +39,7 @@
     "dragonmantank/cron-expression": "^3.3",
     "symfony/mailer": "^7.1",
     "symfony/mime": "^7.1",
-    "symfony/runtime": "^7.1",
-    "symfony/debug-bundle": "^7.1"
+    "symfony/runtime": "^7.1"
 
   },
   "config": {
