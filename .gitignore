@@ -23,3 +23,14 @@ symfony.lock
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
+
+###> symfony/phpunit-bridge ###
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+.env.test
+.php-cs-fixer.dist.php
+phpcs.xml.dist
+phpstan.dist.neon
+phpunit.xml.dist
+rector.php

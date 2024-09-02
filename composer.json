@@ -24,23 +24,23 @@
   "require": {
     "php": ">=8.2",
     "doctrine/doctrine-migrations-bundle": "^3.2",
-    "sensio/framework-extra-bundle": "^6.2",
-    "symfony/validator": "^6.3",
-    "symfony/messenger": "6.*",
-    "doctrine/orm": "^2.14",
+    "symfony/validator": "^7.1",
+    "symfony/messenger": "^7.1",
+    "doctrine/orm": "^2.15",
     "symfony/flex": "^2",
-    "symfony/framework-bundle": "^6.3",
-    "easycorp/easyadmin-bundle": "^4.5",
-    "symfony/scheduler": "^6.3",
-    "symfony/process": "^6.3",
+    "symfony/framework-bundle": "^7.1",
+    "easycorp/easyadmin-bundle": "^4.6",
+    "symfony/scheduler": "^7.1",
+    "symfony/process": "^7.1",
     "symfony/monolog-bundle": "^3.10",
     "ext-readline": "*",
-    "symfony/yaml": "^6.3",
-    "symfony/console": "^6.3",
-    "symfony/lock": "^6.3",
+    "symfony/yaml": "^7.1",
+    "symfony/lock": "^7.1",
     "dragonmantank/cron-expression": "^3.3",
-    "symfony/mailer": "^6.3",
-    "symfony/mime": "^6.3"
+    "symfony/mailer": "^7.1",
+    "symfony/mime": "^7.1",
+    "symfony/runtime": "^7.1",
+    "symfony/debug-bundle": "^7.1"
 
   },
   "config": {
@@ -61,6 +61,9 @@
     "phpstan/phpstan": "^1.10",
     "phpunit/phpunit": "^10.4",
     "squizlabs/php_codesniffer": "^3.7",
-    "friendsofphp/php-cs-fixer": "^3.39"
+    "friendsofphp/php-cs-fixer": "^3.39",
+    "symfony/phpunit-bridge": "^7.1",
+    "symfony/console": "^7.1",
+    "rector/rector": "^1.2"
   }
 }
