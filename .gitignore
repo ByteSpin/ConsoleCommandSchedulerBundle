@@ -34,3 +34,10 @@ phpcs.xml.dist
 phpstan.dist.neon
 phpunit.xml.dist
 rector.php
+bin/console
+bin/phpunit
+config/bundles.php
+config/packages/debug.yaml
+config/packages/lock.yaml
+config/packages/mailer.yaml
+tests/bootstrap.php
