@@ -22,16 +22,13 @@ use Symfony\Component\Yaml\Yaml;
 {
 
     public function __construct(
-        private readonly KernelInterface $kernel,
         private readonly string $projectDir,
     ) {
-        $this->application = new Application($this->kernel);
-        $this->application->setAutoExit(false);
     }
 
     public function listMessengerQueues(): array
     {
-        $file = __DIR__ . '/../../../../../config/packages/messenger.yaml';
+        $file = $this->projectDir . '/config/packages/messenger.yaml';
 
         if (!file_exists($file)) {
             return [];
