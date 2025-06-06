@@ -33,7 +33,7 @@ services:
         autoconfigure: true
         public: false
         arguments:
-            $projectDir: '%kernel.project_dir%'
+            $locator: '@messenger.receiver_locator'
     ByteSpin\ConsoleCommandSchedulerBundle\Job\JobOutputCollector:
         autowire: true
         autoconfigure: true
