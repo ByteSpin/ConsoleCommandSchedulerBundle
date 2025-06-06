@@ -16,6 +16,7 @@ namespace ByteSpin\ConsoleCommandSchedulerBundle\Provider;
 use AllowDynamicProperties;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Yaml\Yaml;
 
 #[AllowDynamicProperties] class MessengerQueueProvider
 {
@@ -29,12 +30,22 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
     public function listMessengerQueues(): array
     {
-        $container = $this->kernel->getContainer();
-        $transportNames = $container->getParameter('messenger.transport_names');
+        $file = __DIR__ . '/../../../../../config/packages/messenger.yaml';
 
-        if ($transportNames) {
-            return is_array($transportNames) ? $transportNames : [];
+        if (!file_exists($file)) {
+            return [];
         }
-        return [];
+
+        $transportNames = [];
+        try {
+            $config = Yaml::parseFile($file);
+            foreach ($config['framework']['messenger']['transports'] ?? [] as $name => $transport) {
+                $transportNames[] = $name;
+            }
+        } catch (\Exception $e) {
+            return [];
+        }
+
+        return $transportNames;
     }
 }
