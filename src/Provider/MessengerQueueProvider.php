@@ -28,7 +28,7 @@ use Symfony\Contracts\Service\ServiceCollectionInterface;
         $transportNames = [];
 
         foreach ($this->locator as $serviceId => $service) {
-            if (!str_contains($serviceId, 'messenger.')) {
+            if (!str_contains($serviceId, 'messenger.') && !str_contains($serviceId, 'failed')) {
                 $transportNames[$serviceId] = $serviceId;
             }
         }
