@@ -15,6 +15,8 @@ namespace ByteSpin\ConsoleCommandSchedulerBundle\Controller\Admin;
 
 use AllowDynamicProperties;
 use ByteSpin\ConsoleCommandSchedulerBundle\Provider\BundleVersionProvider;
+use ByteSpin\ConsoleCommandSchedulerBundle\Provider\MessengerQueueProvider;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -33,6 +35,7 @@ use Psr\Cache\InvalidArgumentException;
     public function __construct(
         private readonly ConsoleCommandProvider $consoleCommandProvider,
         private readonly BundleVersionProvider $bundleVersionProvider,
+        private readonly MessengerQueueProvider $messengerQueueProvider,
     ) {
     }
 
@@ -62,6 +65,7 @@ use Psr\Cache\InvalidArgumentException;
         return [
             IdField::new('id', 'ID')->hideOnForm()->setSortable(false)->hideOnIndex(),
             ChoiceField::new('command')->setChoices($this->consoleCommandProvider->listConsoleCommands()),
+            ChoiceField::new('messenger_queue')->setChoices($this->messengerQueueProvider->listMessengerQueues()),
             TextField::new('arguments'),
             ChoiceField::new('execution_type', 'Type')->setChoices([
                 'Frequency' => 'every',

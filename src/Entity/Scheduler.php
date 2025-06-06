@@ -68,6 +68,8 @@ class Scheduler
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $job_title = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $messenger_queue = null;
 
     public function getId(): ?int
     {
@@ -260,5 +262,15 @@ class Scheduler
     public function setJobTitle(?string $job_title): void
     {
         $this->job_title = $job_title;
+    }
+
+    public function getMessengerQueue(): ?string
+    {
+        return $this->messenger_queue;
+    }
+
+    public function setMessengerQueue(?string $messenger_queue): void
+    {
+        $this->messenger_queue = $messenger_queue;
     }
 }

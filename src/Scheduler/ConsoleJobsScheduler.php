@@ -27,6 +27,7 @@ use ReflectionException;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Messenger\Message\RedispatchMessage;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
@@ -59,6 +60,7 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
             $command = $item->getCommand();
             $id = $item->getId();
             $no_db_log = $item->getNoDbLog();
+            $queue = $item->getMessengerQueue();
             $arguments = ($item->getArguments())
                 ? explode(' ', $item->getArguments())
                 : []
@@ -106,13 +108,19 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
                 : new \DateTimeImmutable($until_date_str . ' ' . $until_time_str, new \DateTimeZone('Europe/Paris'))
             ;
 
+            $message = match(true) {
+                empty($queue) => new ExecuteConsoleCommand($command, $arguments, $log_file, $id, $no_db_log),
+                default => new RedispatchMessage(new ExecuteConsoleCommand($command, $arguments, $log_file, $id, $no_db_log), $queue),
+            }
+            ;
+
             switch ($item->getExecutionType()) {
                 case 'every':
                     try {
                         $scheduler->add(
                             RecurringMessage::every(
                                 $frequency,
-                                new ExecuteConsoleCommand($command, $arguments, $log_file, $id, $no_db_log),
+                                $message,
                                 $from,
                                 $until
                             )
@@ -128,7 +136,7 @@ final class ConsoleJobsScheduler implements ScheduleProviderInterface
                         $scheduler->add(
                             RecurringMessage::cron(
                                 $frequency,
-                                new ExecuteConsoleCommand($command, $arguments, $log_file, $id, $no_db_log)
+                                $message,
                             )
                         )
                         ;
