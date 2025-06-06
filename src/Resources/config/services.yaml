@@ -7,6 +7,7 @@ services:
         arguments:
             $consoleCommandProvider: '@ByteSpin\ConsoleCommandSchedulerBundle\Provider\ConsoleCommandProvider'
             $bundleVersionProvider: '@ByteSpin\ConsoleCommandSchedulerBundle\Provider\BundleVersionProvider'
+            $messengerQueueProvider: '@ByteSpin\ConsoleCommandSchedulerBundle\Provider\MessengerQueueProvider'
     ByteSpin\ConsoleCommandSchedulerBundle\Controller\Admin\SchedulerLogCrudController:
         autowire: true
         autoconfigure: true
@@ -27,6 +28,12 @@ services:
         arguments:
             $projectDir: '%kernel.project_dir%'
             $cache: '@cache.app'
+    ByteSpin\ConsoleCommandSchedulerBundle\Provider\MessengerQueueProvider:
+        autowire: true
+        autoconfigure: true
+        public: false
+        arguments:
+            $kernel: '@Symfony\Component\HttpKernel\KernelInterface'
     ByteSpin\ConsoleCommandSchedulerBundle\Job\JobOutputCollector:
         autowire: true
         autoconfigure: true
