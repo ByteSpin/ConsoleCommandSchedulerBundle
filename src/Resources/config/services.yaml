@@ -34,6 +34,7 @@ services:
         public: false
         arguments:
             $kernel: '@Symfony\Component\HttpKernel\KernelInterface'
+            $projectDir: '%kernel.project_dir%'
     ByteSpin\ConsoleCommandSchedulerBundle\Job\JobOutputCollector:
         autowire: true
         autoconfigure: true

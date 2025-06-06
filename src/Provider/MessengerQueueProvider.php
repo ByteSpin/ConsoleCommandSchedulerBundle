@@ -23,6 +23,7 @@ use Symfony\Component\Yaml\Yaml;
 
     public function __construct(
         private readonly KernelInterface $kernel,
+        private readonly string $projectDir,
     ) {
         $this->application = new Application($this->kernel);
         $this->application->setAutoExit(false);
@@ -40,7 +41,7 @@ use Symfony\Component\Yaml\Yaml;
         try {
             $config = Yaml::parseFile($file);
             foreach ($config['framework']['messenger']['transports'] ?? [] as $name => $transport) {
-                $transportNames[] = $name;
+                $transportNames[$name] = $name;
             }
         } catch (\Exception $e) {
             return [];
