@@ -19,6 +19,7 @@ use ByteSpin\ConsoleCommandSchedulerBundle\Provider\MessengerQueueProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
@@ -29,14 +30,21 @@ use Exception;
 use ByteSpin\ConsoleCommandSchedulerBundle\Entity\Scheduler;
 use ByteSpin\ConsoleCommandSchedulerBundle\Provider\ConsoleCommandProvider;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 #[AllowDynamicProperties] class SchedulerCrudController extends AbstractCrudController
 {
+    private bool $tagsEnabled;
+    private ?string $tagCrudController;
+
     public function __construct(
         private readonly ConsoleCommandProvider $consoleCommandProvider,
         private readonly BundleVersionProvider $bundleVersionProvider,
         private readonly MessengerQueueProvider $messengerQueueProvider,
+        ParameterBagInterface $parameterBag,
     ) {
+        $this->tagsEnabled = $parameterBag->get('bytespin_scheduler.tags.enabled');
+        $this->tagCrudController = $parameterBag->get('bytespin_scheduler.tags.crud_controller');
     }
 
     public static function getEntityFqcn(): string
@@ -61,12 +69,28 @@ use Psr\Cache\InvalidArgumentException;
      */
     public function configureFields(string $pageName): iterable
     {
-
-        return [
+        $fields = [
             IdField::new('id', 'ID')->hideOnForm()->setSortable(false)->hideOnIndex(),
             ChoiceField::new('command')->setChoices($this->consoleCommandProvider->listConsoleCommands()),
             ChoiceField::new('messenger_queue')->setChoices($this->messengerQueueProvider->listMessengerQueues()),
             TextField::new('arguments'),
+        ];
+
+        // Add tags field if tags are enabled
+        if ($this->tagsEnabled) {
+            $tagsField = AssociationField::new('tags')
+                ->setLabel('Tags')
+                ->autocomplete()
+                ->setFormTypeOption('by_reference', false);
+
+            if ($this->tagCrudController) {
+                $tagsField->setCrudController($this->tagCrudController);
+            }
+
+            $fields[] = $tagsField;
+        }
+
+        $fields = array_merge($fields, [
             ChoiceField::new('execution_type', 'Type')->setChoices([
                 'Frequency' => 'every',
                 'Cron' => 'cron',
@@ -82,8 +106,9 @@ use Psr\Cache\InvalidArgumentException;
                 ->setLabel('Log file')->setHelp('Do not provide the full path, only the log filename'),
             BooleanField::new('send_email')->setLabel('Send Notification?'),
             TextField::new('email')->setLabel('Notif. Email'),
-            TextField::new('job_title')->setLabel('Job Title')
-        ];
+            TextField::new('job_title')->setLabel('Job Title'),
+        ]);
 
+        return $fields;
     }
 }
