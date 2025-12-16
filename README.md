@@ -122,12 +122,111 @@ doctrine:
 > - Be sure that ALL your entities are correctly mapped in the 'mappings:' sections of your doctrine.yaml
 
 
+Tags Feature (Optional)
+-----------------------
+
+The bundle supports an optional tags system that allows you to categorize and filter scheduled commands.
+This feature is **disabled by default** and requires configuration to enable.
+
+### Enabling Tags
+
+1. Create a Tag entity in your application that implements `ByteSpin\ConsoleCommandSchedulerBundle\Model\TagInterface`:
+
+```php
+<?php
+
+namespace App\Entity;
+
+use ByteSpin\ConsoleCommandSchedulerBundle\Model\TagInterface;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity]
+class Tag implements TagInterface
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\Column(length: 50, unique: true)]
+    private ?string $name = null;
+
+    #[ORM\Column(length: 100)]
+    private ?string $label = null;
+
+    #[ORM\Column(length: 7, nullable: true)]
+    private ?string $color = null;
+
+    public function __toString(): string
+    {
+        return $this->label ?? $this->name ?? '';
+    }
+
+    public function getId(): ?int { return $this->id; }
+    public function getName(): ?string { return $this->name; }
+    public function getLabel(): ?string { return $this->label; }
+    public function getColor(): ?string { return $this->color; }
+
+    // Add setters as needed...
+}
+```
+
+2. Configure the bundle to enable tags by creating `config/packages/bytespin_console_command_scheduler.yaml`:
+
+```yaml
+bytespin_console_command_scheduler:
+    tags:
+        enabled: true
+        class: App\Entity\Tag
+        crud_controller: App\Controller\Admin\TagCrudController  # Optional: for autocomplete in EasyAdmin
+```
+
+3. Configure Doctrine to resolve the `TagInterface` to your Tag entity in `config/packages/doctrine.yaml`:
+
+```yaml
+doctrine:
+    orm:
+        resolve_target_entities:
+            ByteSpin\ConsoleCommandSchedulerBundle\Model\TagInterface: App\Entity\Tag
+```
+
+4. Update your database schema:
+
+```bash
+php bin/console doctrine:schema:update --force
+```
+
+### TagInterface Methods
+
+Your Tag entity must implement the following methods:
+
+| Method | Return Type | Description |
+|--------|-------------|-------------|
+| `getId()` | `?int` | Returns the tag ID |
+| `getName()` | `?string` | Returns a unique identifier name |
+| `getLabel()` | `?string` | Returns the display label |
+| `getColor()` | `?string` | Returns a hex color code (e.g., `#FF5733`) |
+| `__toString()` | `string` | Returns a string representation |
+
+### Using Tags
+
+When tags are enabled:
+- A new "Tags" field appears in the Scheduler edit/create forms
+- Tags can be selected via autocomplete (if `crud_controller` is configured)
+- Multiple tags can be assigned to each scheduled command
+
+> [!NOTE]
+>
+> The tags feature is completely optional. If not configured, the bundle works exactly as before.
+> No database changes are required if tags remain disabled.
+
+
 Administration interface
 ------------------------
 
 > [!NOTE]
 >
-> Please note that the administration interface is based on EasyAdmin symfony bundle.
+> Please note that the administration interface is based on EasyAdmin Symfony bundle.
 >
 > Because you might already use EasyAdmin in your project, no DashboardController is provided with the bundle.
 >

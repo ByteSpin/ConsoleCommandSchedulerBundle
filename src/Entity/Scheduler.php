@@ -13,9 +13,12 @@
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Entity;
 
+use ByteSpin\ConsoleCommandSchedulerBundle\Model\TagInterface;
 use ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository;
 use DateTime;
 use DateTimeInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SchedulerRepository::class)]
@@ -25,6 +28,13 @@ class Scheduler
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    /**
+     * @var Collection<int, TagInterface>
+     */
+    #[ORM\ManyToMany(targetEntity: TagInterface::class)]
+    #[ORM\JoinTable(name: 'scheduler_tag')]
+    private Collection $tags;
 
     #[ORM\Column(length: 255)]
     private ?string $command = null;
@@ -70,6 +80,11 @@ class Scheduler
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $messenger_queue = null;
+
+    public function __construct()
+    {
+        $this->tags = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -272,5 +287,29 @@ class Scheduler
     public function setMessengerQueue(?string $messenger_queue): void
     {
         $this->messenger_queue = $messenger_queue;
+    }
+
+    /**
+     * @return Collection<int, TagInterface>
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(TagInterface $tag): static
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(TagInterface $tag): static
+    {
+        $this->tags->removeElement($tag);
+
+        return $this;
     }
 }
