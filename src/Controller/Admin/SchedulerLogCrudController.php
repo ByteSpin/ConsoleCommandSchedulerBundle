@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -13,7 +13,7 @@
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Controller\Admin;
 
-use AllowDynamicProperties;
+use ByteSpin\ConsoleCommandSchedulerBundle\Entity\SchedulerLog;
 use ByteSpin\ConsoleCommandSchedulerBundle\Provider\BundleVersionProvider;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
@@ -27,10 +27,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use Exception;
-use ByteSpin\ConsoleCommandSchedulerBundle\Entity\SchedulerLog;
 
-#[AllowDynamicProperties]  class SchedulerLogCrudController extends AbstractCrudController
+/**
+ * @extends AbstractCrudController<SchedulerLog>
+ */
+class SchedulerLogCrudController extends AbstractCrudController
 {
     public function __construct(
         private readonly BundleVersionProvider $bundleVersionProvider,
@@ -47,12 +48,11 @@ use ByteSpin\ConsoleCommandSchedulerBundle\Entity\SchedulerLog;
         return $crud
             ->setEntityLabelInSingular('Log')
             ->setEntityLabelInPlural('Logs')
-            ->setHelp('index', 'Bundle version ' . $this->bundleVersionProvider->getBundleVersion());
+            ->setHelp('index', 'Bundle version '.$this->bundleVersionProvider->getBundleVersion());
     }
 
-
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function configureFields(string $pageName): iterable
     {
@@ -63,8 +63,7 @@ use ByteSpin\ConsoleCommandSchedulerBundle\Entity\SchedulerLog;
         $duration = TextField::new('duration');
         $returnCode = TextField::new('return_code');
 
-
-        # LISTING
+        // LISTING
         if (Crud::PAGE_INDEX === $pageName) {
             return [
                 $id,
@@ -75,6 +74,7 @@ use ByteSpin\ConsoleCommandSchedulerBundle\Entity\SchedulerLog;
                 $returnCode,
             ];
         }
+
         return [];
     }
 
@@ -90,6 +90,7 @@ use ByteSpin\ConsoleCommandSchedulerBundle\Entity\SchedulerLog;
         $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
         $qb
             ->addOrderBy('entity.date', 'desc');
+
         return $qb;
     }
 }

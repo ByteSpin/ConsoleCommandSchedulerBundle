@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -13,32 +13,36 @@
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber;
 
-use Doctrine\Common\EventSubscriber;
+use ByteSpin\ConsoleCommandSchedulerBundle\Entity\Scheduler;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
-use ByteSpin\ConsoleCommandSchedulerBundle\Entity\Scheduler;
 
-class SchedulerEasyAdminEventSubscriber implements EventSubscriber
+#[AsDoctrineListener(event: Events::prePersist)]
+#[AsDoctrineListener(event: Events::preUpdate)]
+#[AsDoctrineListener(event: Events::postLoad)]
+class SchedulerEasyAdminEventSubscriber
 {
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::prePersist,
-            Events::preUpdate,
-            Events::postLoad
-        ];
-    }
-
+    /**
+     * @param LifecycleEventArgs<EntityManagerInterface> $args
+     */
     public function prePersist(LifecycleEventArgs $args): void
     {
         $this->transformDateTimeToString($args);
     }
 
+    /**
+     * @param LifecycleEventArgs<EntityManagerInterface> $args
+     */
     public function preUpdate(LifecycleEventArgs $args): void
     {
         $this->transformDateTimeToString($args);
     }
 
+    /**
+     * @param LifecycleEventArgs<EntityManagerInterface> $args
+     */
     public function postLoad(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
@@ -61,13 +65,13 @@ class SchedulerEasyAdminEventSubscriber implements EventSubscriber
         }
 
         if (is_string($entity->getExecutionUntilDate())) {
-            $date = \DateTime::createFromFormat('Y-m-d', $entity->getExecutionuntilDate());
+            $date = \DateTime::createFromFormat('Y-m-d', $entity->getExecutionUntilDate());
             if ($date) {
-                $entity->setExecutionuntilDate($date);
+                $entity->setExecutionUntilDate($date);
             }
         }
 
-        if (is_string($entity->getExecutionuntilTime())) {
+        if (is_string($entity->getExecutionUntilTime())) {
             $time = \DateTime::createFromFormat('H:i', $entity->getExecutionUntilTime());
             if ($time) {
                 $entity->setExecutionUntilTime($time);
@@ -75,6 +79,9 @@ class SchedulerEasyAdminEventSubscriber implements EventSubscriber
         }
     }
 
+    /**
+     * @param LifecycleEventArgs<EntityManagerInterface> $args
+     */
     private function transformDateTimeToString(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();

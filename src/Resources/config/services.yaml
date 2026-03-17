@@ -84,7 +84,6 @@ services:
         autowire: true
         autoconfigure: true
         public: false
-        tags: [ 'doctrine.event_subscriber' ]
     ByteSpin\ConsoleCommandSchedulerBundle\MessageHandler\ExecuteConsoleCommandHandler:
         autowire: true
         autoconfigure: true

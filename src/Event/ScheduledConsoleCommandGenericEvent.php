@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -15,19 +15,19 @@ declare(strict_types=1);
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Event;
 
-use DateTime;
-use DateTimeInterface;
-
 final readonly class ScheduledConsoleCommandGenericEvent
 {
+    /**
+     * @param array<string> $commandArguments
+     */
     public function __construct(
         public string $command,
         public array $commandArguments = [],
-        public DateTimeInterface|null $start = new DateTime(),
-        public DateTimeInterface|null $end = new DateTime(),
+        public ?\DateTimeInterface $start = new \DateTime(),
+        public ?\DateTimeInterface $end = new \DateTime(),
         public string $duration = '',
-        public int|null $returnCode = null,
-        public string|null $logFile = null,
+        public ?int $returnCode = null,
+        public ?string $logFile = null,
         public int $id = 0,
         public ?bool $noDbLog = false,
     ) {

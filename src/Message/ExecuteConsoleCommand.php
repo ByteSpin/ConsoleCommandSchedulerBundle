@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -17,10 +17,13 @@ namespace ByteSpin\ConsoleCommandSchedulerBundle\Message;
 
 final readonly class ExecuteConsoleCommand
 {
+    /**
+     * @param array<string> $commandArguments
+     */
     public function __construct(
         public string $command,
         public array $commandArguments = [],
-        public string|null $logFile = "",
+        public ?string $logFile = null,
         public int $id = 0,
         public ?bool $noDbLog = false,
     ) {

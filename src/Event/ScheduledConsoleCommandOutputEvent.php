@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -16,15 +16,17 @@ declare(strict_types=1);
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Event;
 
 use ByteSpin\ConsoleCommandSchedulerBundle\Model\CommandType;
-use DateTime;
 use Symfony\Contracts\EventDispatcher\Event;
 
 final class ScheduledConsoleCommandOutputEvent extends Event
 {
+    /**
+     * @param array<string> $commandArguments
+     */
     public function __construct(
         public readonly string $commandId,
         public readonly CommandType $commandType,
-        public readonly DateTime $dateTime,
+        public readonly \DateTime $dateTime,
         public readonly string $command,
         public readonly array $commandArguments = [],
         public readonly ?string $duration = '',

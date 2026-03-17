@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -13,16 +13,21 @@
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Provider;
 
-use AllowDynamicProperties;
 use Symfony\Contracts\Service\ServiceCollectionInterface;
 
-#[AllowDynamicProperties] class MessengerQueueProvider
+class MessengerQueueProvider
 {
+    /**
+     * @param ServiceCollectionInterface<mixed> $locator
+     */
     public function __construct(
         private readonly ServiceCollectionInterface $locator,
     ) {
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function listMessengerQueues(): array
     {
         $transportNames = [];

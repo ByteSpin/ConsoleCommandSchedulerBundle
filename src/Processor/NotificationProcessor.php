@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -14,9 +14,7 @@
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Processor;
 
 use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandGenericEvent;
-use ByteSpin\ConsoleCommandSchedulerBundle\Job\JobOutputCollector;
 use ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository;
-use InvalidArgumentException;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -28,23 +26,23 @@ readonly class NotificationProcessor
     public function __construct(
         private MailerInterface $mailer,
         private CacheItemPoolInterface $cachePool,
-        #[Autowire(env:'BYTESPIN_FROM_EMAIL')]
+        #[Autowire(env: 'BYTESPIN_FROM_EMAIL')]
         private string $mailFrom,
         private SchedulerRepository $schedulerRepository,
     ) {
     }
 
     /**
-     * @throws TransportExceptionInterface|InvalidArgumentException
+     * @throws TransportExceptionInterface|\InvalidArgumentException
      * @throws \Psr\Cache\InvalidArgumentException
      */
     public function sendNotification(ScheduledConsoleCommandGenericEvent $consoleCommand): void
     {
-        $item = $this->cachePool->getItem((string)$consoleCommand->id);
+        $item = $this->cachePool->getItem((string) $consoleCommand->id);
         $outputs = $item->isHit() ? $item->get() : [];
 
-        $hasNonZeroReturnCode = array_reduce($outputs, function ($carry, $item) {
-            return $carry || ($item["returnCode"] != 0);
+        $hasNonZeroReturnCode = array_reduce($outputs, function ($carry, $output) {
+            return $carry || (0 != $output['returnCode']);
         }, false);
 
         $jobConfigData = $this->schedulerRepository->find($consoleCommand->id);
@@ -54,16 +52,16 @@ readonly class NotificationProcessor
                 ->from($this->mailFrom)
                 ->to($jobConfigData->getEmail())
                 ->subject(
-                    '[' .
+                    '['.
                     match (true) {
-                        $consoleCommand->returnCode === 0 && !$hasNonZeroReturnCode => 'SUCCESS',
-                        $consoleCommand->returnCode === 0 && $hasNonZeroReturnCode => 'WARNING',
+                        0 === $consoleCommand->returnCode && !$hasNonZeroReturnCode => 'SUCCESS',
+                        0 === $consoleCommand->returnCode && $hasNonZeroReturnCode => 'WARNING',
                         default => 'FAILURE',
-                    } .
-                    '] ByteSpin Scheduled Console Command:' .
+                    }.
+                    '] ByteSpin Scheduled Console Command:'.
                     match ($jobConfigData->getJobTitle()) {
                         null => $consoleCommand->command,
-                        default => $jobConfigData->getJobTitle()
+                        default => $jobConfigData->getJobTitle(),
                     }
                 )
                 ->htmlTemplate('@ByteSpinConsoleCommandSchedulerBundle/email/notification.html.twig')
@@ -84,7 +82,7 @@ readonly class NotificationProcessor
             $this->mailer->send($email);
 
             // empty output in cache for current command
-            $this->cachePool->deleteItem((string)$consoleCommand->id);
+            $this->cachePool->deleteItem((string) $consoleCommand->id);
         }
     }
 }

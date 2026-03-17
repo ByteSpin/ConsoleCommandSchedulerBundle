@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -13,10 +13,10 @@
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Controller\Admin;
 
-use AllowDynamicProperties;
+use ByteSpin\ConsoleCommandSchedulerBundle\Entity\Scheduler;
 use ByteSpin\ConsoleCommandSchedulerBundle\Provider\BundleVersionProvider;
+use ByteSpin\ConsoleCommandSchedulerBundle\Provider\ConsoleCommandProvider;
 use ByteSpin\ConsoleCommandSchedulerBundle\Provider\MessengerQueueProvider;
-use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -26,13 +26,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TimeField;
-use Exception;
-use ByteSpin\ConsoleCommandSchedulerBundle\Entity\Scheduler;
-use ByteSpin\ConsoleCommandSchedulerBundle\Provider\ConsoleCommandProvider;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-#[AllowDynamicProperties] class SchedulerCrudController extends AbstractCrudController
+/**
+ * @extends AbstractCrudController<Scheduler>
+ */
+class SchedulerCrudController extends AbstractCrudController
 {
     private bool $tagsEnabled;
     private ?string $tagCrudController;
@@ -60,12 +60,11 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
         return $crud
             ->setEntityLabelInSingular('Console Command')
             ->setEntityLabelInPlural('Console Commands')
-            ->setHelp('index', 'Bundle version ' . $this->bundleVersionProvider->getBundleVersion());
+            ->setHelp('index', 'Bundle version '.$this->bundleVersionProvider->getBundleVersion());
     }
 
-
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function configureFields(string $pageName): iterable
     {
