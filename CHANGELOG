@@ -1,4 +1,37 @@
 # Changelog
+
+## [2.0.1] - 2026-03-17
+### Changed
+- Rewrite `ConfigureBundleCommand` using Symfony best practices: `#[AsCommand]` attribute, `SymfonyStyle` for user interaction, `%kernel.project_dir%` injection, `--no-interaction` support.
+
+### Removed
+- Remove `PostInstallScript` (dead code, raw I/O incompatible with Symfony Console).
+- Remove `ext-readline` dependency (no longer needed).
+
+## [2.0.0] - 2026-03-17
+### Added
+- New `ScheduledConsoleCommandEvent` class extending `Symfony\Contracts\EventDispatcher\Event` with named constants (`BEFORE`, `LOG`, `SUCCESS`, `FAILURE`, `AFTER`).
+
+### Changed
+- Bump minimum PHP version to 8.4.
+- Widen dependency constraints: Symfony ^7.1 || ^8, Doctrine ORM ^2.10 || ^3 || ^4, EasyAdmin ^4.6 || ^5.
+- Replace deprecated `GenericEvent` with `ScheduledConsoleCommandEvent` in handler and subscribers.
+- Migrate `SchedulerEasyAdminEventSubscriber` from `Doctrine\Common\EventSubscriber` (removed in ORM 4) to `#[AsDoctrineListener]` attributes.
+- Remove `#[AllowDynamicProperties]` across the bundle, declare properties explicitly.
+- Add explicit union types on `Scheduler` entity setters (`DateTimeInterface|string|null`).
+- Add PHPDoc generics on repositories, events, providers, and CRUD controllers.
+- Improve null safety in `ConsoleJobsScheduler` schedule loop.
+
+### Fixed
+- Fix copy-paste bug in `PostInstallScript` checking for wrong bundle name (`MessengerDedupeBundle`).
+- Fix corrupted `Configuration.php` class declaration.
+- Fix inconsistent method name casing in `SchedulerEasyAdminEventSubscriber` (`getExecutionuntilDate` → `getExecutionUntilDate`).
+- Fix `SchedulerLog::setReturnCode()` to accept `int|null` (was `string|null` only).
+- Fix `SchedulerLog::setDuration()` to properly cast `float` to `string`.
+- Fix `ExecuteConsoleCommand::$logFile` default value from `""` to `null`.
+- Remove useless try/catch re-throws in `ConsoleJobsScheduler`.
+- Apply `php-cs-fixer` @Symfony code style across the bundle.
+
 ## [1.1.0] - 2025-06-06
 ### Added
 - Implemented messenger queue choice in admin interface.
