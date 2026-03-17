@@ -30,8 +30,6 @@ class Scheduler
     /**
      * @var Collection<int, TagInterface>
      */
-    #[ORM\ManyToMany(targetEntity: TagInterface::class)]
-    #[ORM\JoinTable(name: 'scheduler_tag')]
     private Collection $tags;
 
     #[ORM\Column(length: 255)]
