@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -29,7 +29,7 @@ class DurationConverter
         if ($m > 0) {
             $result[] = "$m min.";
         }
-        if ($rs > 0 || count($result) == 0) {
+        if ($rs > 0 || 0 == count($result)) {
             $result[] = "$rs sec.";
         }
 

@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -35,7 +35,7 @@ readonly class BundleVersionProvider
         return $this->cache->get(
             'bytespin_console_command_scheduler_bundle_version',
             function (ItemInterface $item) use ($bundleName) {
-                $composerLock = json_decode(file_get_contents($this->projectDir . '/composer.lock'), true);
+                $composerLock = json_decode(file_get_contents($this->projectDir.'/composer.lock'), true);
 
                 $packages = $composerLock['packages'] ?? [];
 
@@ -44,6 +44,7 @@ readonly class BundleVersionProvider
                 });
 
                 $package = reset($filtered);
+
                 return $package ? $package['version'] : null;
             }
         );

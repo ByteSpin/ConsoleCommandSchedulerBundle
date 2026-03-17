@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -13,10 +13,10 @@
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber;
 
+use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandOutputEvent;
 use ByteSpin\ConsoleCommandSchedulerBundle\Job\JobOutputCollector;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use ByteSpin\ConsoleCommandSchedulerBundle\Event\ScheduledConsoleCommandOutputEvent;
 
 class ScheduledConsoleCommandOutputEventSubscriber implements EventSubscriberInterface
 {
@@ -44,7 +44,7 @@ class ScheduledConsoleCommandOutputEventSubscriber implements EventSubscriberInt
             'commandArguments' => $event->commandArguments,
             'duration' => $event->duration,
             'returnCode' => $event->returnCode,
-            'output' => $event->commandOutput
+            'output' => $event->commandOutput,
         ]
         ;
 

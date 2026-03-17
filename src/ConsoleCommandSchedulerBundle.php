@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -15,9 +15,9 @@ namespace ByteSpin\ConsoleCommandSchedulerBundle;
 
 use ByteSpin\ConsoleCommandSchedulerBundle\DependencyInjection\Compiler\TwigPathCompilerPass;
 use ByteSpin\ConsoleCommandSchedulerBundle\DependencyInjection\ConsoleCommandSchedulerExtension;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class ConsoleCommandSchedulerBundle extends Bundle
 {
