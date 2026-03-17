@@ -13,14 +13,33 @@
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\DependencyInjection;
 
+use ByteSpin\ConsoleCommandSchedulerBundle\EventSubscriber\TagMappingListener;
 use ByteSpin\ConsoleCommandSchedulerBundle\Model\TagInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
-class ConsoleCommandSchedulerExtension extends Extension
+class ConsoleCommandSchedulerExtension extends Extension implements PrependExtensionInterface
 {
+    public function prepend(ContainerBuilder $container): void
+    {
+        $configs = $container->getExtensionConfig($this->getAlias());
+        $config = $this->processConfiguration(new Configuration(), $configs);
+
+        if ($config['tags']['enabled'] && !empty($config['tags']['class'])) {
+            $container->prependExtensionConfig('doctrine', [
+                'orm' => [
+                    'resolve_target_entities' => [
+                        TagInterface::class => $config['tags']['class'],
+                    ],
+                ],
+            ]);
+        }
+    }
+
     /**
      * @throws \Exception
      */
@@ -34,17 +53,21 @@ class ConsoleCommandSchedulerExtension extends Extension
         $container->setParameter('bytespin_scheduler.tags.class', $config['tags']['class']);
         $container->setParameter('bytespin_scheduler.tags.crud_controller', $config['tags']['crud_controller']);
 
-        // Validate tag class if enabled
+        // Validate and register tag mapping if enabled
         if ($config['tags']['enabled']) {
             if (empty($config['tags']['class'])) {
                 throw new \InvalidArgumentException('The "bytespin_console_command_scheduler.tags.class" configuration is required when tags are enabled.');
             }
 
-            // Check if the class implements TagInterface (will be validated at runtime)
             $tagClass = $config['tags']['class'];
             if (class_exists($tagClass) && !is_subclass_of($tagClass, TagInterface::class)) {
                 throw new \InvalidArgumentException(sprintf('The tag class "%s" must implement "%s".', $tagClass, TagInterface::class));
             }
+
+            // Register the listener that dynamically adds the ManyToMany mapping
+            $definition = new Definition(TagMappingListener::class, [$tagClass]);
+            $definition->addTag('doctrine.event_listener', ['event' => 'loadClassMetadata']);
+            $container->setDefinition(TagMappingListener::class, $definition);
         }
 
         // Load services configuration
