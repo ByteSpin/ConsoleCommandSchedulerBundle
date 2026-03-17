@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -13,17 +13,17 @@
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Repository;
 
+use ByteSpin\ConsoleCommandSchedulerBundle\Entity\Scheduler;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use ByteSpin\ConsoleCommandSchedulerBundle\Entity\Scheduler;
 
 /**
  * @extends ServiceEntityRepository<Scheduler>
  *
  * @method Scheduler|null find($id, $lockMode = null, $lockVersion = null)
- * @method Scheduler|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Scheduler|null findOneBy(array<string, mixed> $criteria, ?array<string, string> $orderBy = null)
  * @method Scheduler[]    findAll()
- * @method Scheduler[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Scheduler[]    findBy(array<string, mixed> $criteria, ?array<string, string> $orderBy = null, $limit = null, $offset = null)
  */
 class SchedulerRepository extends ServiceEntityRepository
 {

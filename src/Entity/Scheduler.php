@@ -3,7 +3,7 @@
 /**
  * This file is part of the ByteSpin/ConsoleCommandSchedulerBundle project.
  * The project is hosted on GitHub at:
- *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git
+ *  https://github.com/ByteSpin/ConsoleCommandSchedulerBundle.git.
  *
  * Copyright (c) Greg LAMY <greg@bytespin.net>
  *
@@ -15,8 +15,6 @@ namespace ByteSpin\ConsoleCommandSchedulerBundle\Entity;
 
 use ByteSpin\ConsoleCommandSchedulerBundle\Model\TagInterface;
 use ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository;
-use DateTime;
-use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,7 +25,7 @@ class Scheduler
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    private ?int $id = null; /* @phpstan-ignore property.unusedType */
 
     /**
      * @var Collection<int, TagInterface>
@@ -61,7 +59,7 @@ class Scheduler
     private ?string $execution_until_time = null;
 
     #[ORM\Column(nullable: true)]
-    private ?bool $disabled = false;
+    private ?bool $disabled = false; /* @phpstan-ignore property.unusedType */
 
     #[ORM\Column(nullable: true)]
     private ?bool $noDbLog = false;
@@ -139,39 +137,42 @@ class Scheduler
         return $this;
     }
 
-    public function getExecutionFromDate(): ?DateTimeInterface
+    public function getExecutionFromDate(): \DateTimeInterface|string|null
     {
         if (empty($this->execution_from_date)) {
             return null;
         }
 
-        $date = DateTime::createFromFormat('Y-m-d', $this->execution_from_date);
+        $date = \DateTime::createFromFormat('Y-m-d', $this->execution_from_date);
+
         return $date ?: null;
     }
 
-    public function setExecutionFromDate($execution_from_date): static
+    public function setExecutionFromDate(\DateTimeInterface|string|null $execution_from_date): static
     {
-        if ($execution_from_date instanceof DateTimeInterface) {
+        if ($execution_from_date instanceof \DateTimeInterface) {
             $this->execution_from_date = $execution_from_date->format('Y-m-d');
         } else {
             $this->execution_from_date = $execution_from_date;
         }
+
         return $this;
     }
 
-    public function getExecutionFromTime(): ?DateTimeInterface
+    public function getExecutionFromTime(): \DateTimeInterface|string|null
     {
         if (empty($this->execution_from_time)) {
             return null;
         }
 
-        $time = DateTime::createFromFormat('H:i', $this->execution_from_time);
+        $time = \DateTime::createFromFormat('H:i', $this->execution_from_time);
+
         return $time ?: null;
     }
 
-    public function setExecutionFromTime($execution_from_time): static
+    public function setExecutionFromTime(\DateTimeInterface|string|null $execution_from_time): static
     {
-        if ($execution_from_time instanceof DateTimeInterface) {
+        if ($execution_from_time instanceof \DateTimeInterface) {
             $this->execution_from_time = $execution_from_time->format('H:i');
         } else {
             $this->execution_from_time = $execution_from_time;
@@ -180,43 +181,47 @@ class Scheduler
         return $this;
     }
 
-    public function getExecutionUntilDate(): ?DateTimeInterface
+    public function getExecutionUntilDate(): \DateTimeInterface|string|null
     {
         if (empty($this->execution_until_date)) {
             return null;
         }
 
-        $date = DateTime::createFromFormat('Y-m-d', $this->execution_until_date);
+        $date = \DateTime::createFromFormat('Y-m-d', $this->execution_until_date);
+
         return $date ?: null;
     }
 
-    public function setExecutionUntilDate($execution_until_date): static
+    public function setExecutionUntilDate(\DateTimeInterface|string|null $execution_until_date): static
     {
-        if ($execution_until_date instanceof DateTimeInterface) {
+        if ($execution_until_date instanceof \DateTimeInterface) {
             $this->execution_until_date = $execution_until_date->format('Y-m-d');
         } else {
             $this->execution_until_date = $execution_until_date;
         }
+
         return $this;
     }
 
-    public function getExecutionUntilTime(): ?DateTimeInterface
+    public function getExecutionUntilTime(): \DateTimeInterface|string|null
     {
         if (empty($this->execution_until_time)) {
             return null;
         }
 
-        $time = DateTime::createFromFormat('H:i', $this->execution_until_time);
+        $time = \DateTime::createFromFormat('H:i', $this->execution_until_time);
+
         return $time ?: null;
     }
 
-    public function setExecutionUntilTime($execution_until_time): static
+    public function setExecutionUntilTime(\DateTimeInterface|string|null $execution_until_time): static
     {
-        if ($execution_until_time instanceof DateTimeInterface) {
+        if ($execution_until_time instanceof \DateTimeInterface) {
             $this->execution_until_time = $execution_until_time->format('H:i');
         } else {
             $this->execution_until_time = $execution_until_time;
         }
+
         return $this;
     }
 
@@ -246,34 +251,42 @@ class Scheduler
     {
         $this->log_file = $log_file;
     }
+
     public function getNoDbLog(): ?bool
     {
         return $this->noDbLog;
     }
+
     public function setNoDbLog(?bool $noDbLog): void
     {
         $this->noDbLog = $noDbLog;
     }
+
     public function getSendEmail(): ?bool
     {
         return $this->send_email;
     }
+
     public function setSendEmail(?bool $send_email): void
     {
         $this->send_email = $send_email;
     }
+
     public function getEmail(): ?string
     {
         return $this->email;
     }
+
     public function setEmail(?string $email): void
     {
         $this->email = $email;
     }
+
     public function getJobTitle(): ?string
     {
         return $this->job_title;
     }
+
     public function setJobTitle(?string $job_title): void
     {
         $this->job_title = $job_title;
