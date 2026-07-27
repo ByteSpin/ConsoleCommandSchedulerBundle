@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.1.1] - 2026-07-27
+### Fixed
+- The "Health" badge crashed the admin index: it lived on a `TextField` bound to the integer `id` property, which EasyAdmin's `TextConfigurator` rejects ("can't be converted into a string"). The badge now rides the Job Title column (string property); an entry skipped by the last schedule build shows a red "invalid" badge next to its title.
+
 ## [2.1.0] - 2026-07-27
 ### Added
 - `RecurringMessageFactory`: single point of truth converting a scheduler entry into a `RecurringMessage` — shared by the schedule provider, the entity validator and the new lint command, so what validates is exactly what runs.
