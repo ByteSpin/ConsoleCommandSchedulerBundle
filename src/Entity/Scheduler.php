@@ -15,11 +15,13 @@ namespace ByteSpin\ConsoleCommandSchedulerBundle\Entity;
 
 use ByteSpin\ConsoleCommandSchedulerBundle\Model\TagInterface;
 use ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository;
+use ByteSpin\ConsoleCommandSchedulerBundle\Validator\ValidSchedulerEntry;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SchedulerRepository::class)]
+#[ValidSchedulerEntry]
 class Scheduler
 {
     #[ORM\Id]

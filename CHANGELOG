@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.1.0] - 2026-07-27
+### Added
+- `RecurringMessageFactory`: single point of truth converting a scheduler entry into a `RecurringMessage` — shared by the schedule provider, the entity validator and the new lint command, so what validates is exactly what runs.
+- Fault isolation in `ConsoleJobsScheduler::getSchedule()`: an invalid entry no longer takes the whole schedule down — it is skipped with an error log and a `SchedulerEntryFaultedEvent`, and every other entry keeps running. (Previously a single bad frequency crashed the scheduler worker at boot and silently stopped ALL scheduled tasks.)
+- `SchedulerEntryFaultedEvent` (`bytespin.scheduler.entry.faulted`): hook for host applications to plug their own monitoring on skipped entries.
+- `ValidSchedulerEntry` constraint on the `Scheduler` entity: the frequency must build a real recurring message for the chosen execution type at input time. A cron expression typed into the interval field is rejected with an explicit hint instead of being accepted and killing the scheduler at runtime.
+- `bytespin:scheduler:lint` command: dry-runs every entry through the same factory the scheduler uses (CI, deploy pipelines, post-restore checks); exits non-zero when an enabled entry cannot run.
+- "Health" badge on the admin list: entries skipped by the last schedule build show a red "invalid" badge carrying the reason.
+- New configuration option `bytespin_console_command_scheduler.scheduler.process_only_last_missed_run` (default `true`).
+
+### Changed
+- **Behavior change**: when the scheduler resumes after a downtime it now runs at most ONE catch-up occurrence per task instead of replaying every missed run (cron-like semantics). Set `scheduler.process_only_last_missed_run: false` to restore the previous replay-everything behavior.
+- `ConsoleJobsScheduler` now depends on the factory, an event dispatcher, an optional logger and the missed-run flag; the command introspection moved to `Factory\ConsoleCommandIntrospector`.
+
 ## [2.0.1] - 2026-03-17
 ### Changed
 - Rewrite `ConfigureBundleCommand` using Symfony best practices: `#[AsCommand]` attribute, `SymfonyStyle` for user interaction, `%kernel.project_dir%` injection, `--no-interaction` support.

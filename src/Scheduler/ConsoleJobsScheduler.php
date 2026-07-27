@@ -15,14 +15,13 @@ declare(strict_types=1);
 
 namespace ByteSpin\ConsoleCommandSchedulerBundle\Scheduler;
 
-use ByteSpin\ConsoleCommandSchedulerBundle\Message\ExecuteConsoleCommand;
+use ByteSpin\ConsoleCommandSchedulerBundle\Event\SchedulerEntryFaultedEvent;
+use ByteSpin\ConsoleCommandSchedulerBundle\Factory\RecurringMessageFactory;
 use ByteSpin\ConsoleCommandSchedulerBundle\Repository\SchedulerRepository;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Component\HttpKernel\KernelInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
-use Symfony\Component\Messenger\Message\RedispatchMessage;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
-use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -30,127 +29,63 @@ use Symfony\Contracts\Cache\CacheInterface;
 #[AsSchedule('scheduler')]
 final class ConsoleJobsScheduler implements ScheduleProviderInterface
 {
-    private Application $application;
+    /**
+     * Faults of the last schedule build, keyed by entry id — read by the
+     * admin list to badge invalid entries.
+     */
+    public const FAULTS_CACHE_KEY = 'bytespin_scheduler_build_faults';
 
     public function __construct(
         private readonly SchedulerRepository $schedulerRepository,
-        private readonly KernelInterface $kernel,
+        private readonly RecurringMessageFactory $recurringMessageFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CacheInterface $cache,
         private readonly LockFactory $lockFactory,
+        private readonly ?LoggerInterface $logger = null,
+        private readonly bool $processOnlyLastMissedRun = true,
     ) {
-        $this->application = new Application($this->kernel);
-        $this->application->setAutoExit(false);
+    }
+
+    public function getSchedule(): Schedule
+    {
+        $schedule = new Schedule();
+        $faults = [];
+
+        foreach ($this->schedulerRepository->findBy(['disabled' => false]) as $entry) {
+            try {
+                $schedule->add($this->recurringMessageFactory->create($entry));
+            } catch (\Throwable $error) {
+                // One faulty entry must NEVER take the whole schedule down:
+                // it is skipped loudly (log + event) and every other entry
+                // keeps running.
+                $faults[(int) $entry->getId()] = $error->getMessage();
+                $this->logger?->error(sprintf(
+                    '[ConsoleCommandScheduler] %s — entry skipped, the rest of the schedule keeps running.',
+                    $error->getMessage(),
+                ));
+                $this->eventDispatcher->dispatch(
+                    new SchedulerEntryFaultedEvent($entry, $error),
+                    SchedulerEntryFaultedEvent::NAME,
+                );
+            }
+        }
+
+        $this->storeFaults($faults);
+
+        return $schedule
+            ->stateful($this->cache)
+            ->processOnlyLastMissedRun($this->processOnlyLastMissedRun)
+            ->lock($this->lockFactory->createLock('scheduler_scheduler'))
+        ;
     }
 
     /**
-     * @throws \Exception
+     * @param array<int, string> $faults
      */
-    public function getSchedule(): Schedule
+    private function storeFaults(array $faults): void
     {
-        $commands = $this->schedulerRepository->findBy(['disabled' => false]);
-        $scheduler = new Schedule();
-        foreach ($commands as $item) {
-            $frequency = $item->getFrequency();
-            $log_file = $item->getLogFile();
-            $command = $item->getCommand();
-            $id = $item->getId();
-            $no_db_log = $item->getNoDbLog();
-            $queue = $item->getMessengerQueue();
-
-            if (null === $command || null === $frequency || null === $id) {
-                continue;
-            }
-
-            $arguments = ($item->getArguments())
-                ? explode(' ', $item->getArguments())
-                : []
-            ;
-
-            // add job id to arguments for optional use in run commands
-            if ($this->hasJobIdOptionInCommand($command)) {
-                $arguments[] = '--job-id='.$id;
-            }
-
-            $from_date = ($item->getExecutionFromDate())
-                ?: ''
-            ;
-            $from_date_str = ($from_date instanceof \DateTime)
-                ? $from_date->format('Y-m-d')
-                : $from_date
-            ;
-            $from_time = ($item->getExecutionFromTime())
-                ?: ''
-            ;
-            $from_time_str = ($from_time instanceof \DateTime)
-                ? $from_time->format('H:i:s')
-                : $from_time
-            ;
-
-            $from = new \DateTimeImmutable($from_date_str.' '.$from_time_str, new \DateTimeZone('Europe/Paris'));
-            $until_date = ($item->getExecutionUntilDate())
-                ?: ''
-            ;
-
-            $until_date_str = ($until_date instanceof \DateTime)
-                ? $until_date->format('Y-m-d')
-                : $until_date
-            ;
-
-            $until_time = ($item->getExecutionUntilTime()) ?: '';
-            $until_time_str = ($until_time instanceof \DateTime)
-                ? $until_time->format('H:i:s')
-                : $until_time
-            ;
-
-            $until = ('' === $until_date_str && '' === $until_time_str)
-                ? new \DateTimeImmutable('3000-01-01')
-                : new \DateTimeImmutable($until_date_str.' '.$until_time_str, new \DateTimeZone('Europe/Paris'))
-            ;
-
-            $executeCommand = new ExecuteConsoleCommand($command, $arguments, $log_file, $id, $no_db_log);
-            $message = (null === $queue || '' === $queue)
-                ? $executeCommand
-                : new RedispatchMessage($executeCommand, $queue)
-            ;
-
-            switch ($item->getExecutionType()) {
-                case 'every':
-                    $scheduler->add(
-                        RecurringMessage::every(
-                            $frequency,
-                            $message,
-                            $from,
-                            $until
-                        )
-                    );
-                    break;
-
-                case 'cron':
-                    $scheduler->add(
-                        RecurringMessage::cron(
-                            $frequency,
-                            $message,
-                        )
-                    );
-                    break;
-            }
-        }
-
-        return $scheduler->stateful($this->cache)->lock($this->lockFactory->createLock('scheduler_scheduler'));
-    }
-
-    private function hasJobIdOptionInCommand(string $command): bool
-    {
-        $command = $this->application->find($command);
-        $reflectionClass = new \ReflectionClass($command::class);
-
-        try {
-            $method = $reflectionClass->getMethod('configure');
-            $method->invoke($command);
-
-            return $command->getDefinition()->hasOption('job-id');
-        } catch (\ReflectionException) {
-            return false;
-        }
+        // CacheInterface has no unconditional set: delete + recompute.
+        $this->cache->delete(self::FAULTS_CACHE_KEY);
+        $this->cache->get(self::FAULTS_CACHE_KEY, static fn (): array => $faults);
     }
 }

@@ -17,6 +17,7 @@ use ByteSpin\ConsoleCommandSchedulerBundle\Entity\Scheduler;
 use ByteSpin\ConsoleCommandSchedulerBundle\Provider\BundleVersionProvider;
 use ByteSpin\ConsoleCommandSchedulerBundle\Provider\ConsoleCommandProvider;
 use ByteSpin\ConsoleCommandSchedulerBundle\Provider\MessengerQueueProvider;
+use ByteSpin\ConsoleCommandSchedulerBundle\Scheduler\ConsoleJobsScheduler;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -28,6 +29,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TimeField;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @extends AbstractCrudController<Scheduler>
@@ -41,6 +43,7 @@ class SchedulerCrudController extends AbstractCrudController
         private readonly ConsoleCommandProvider $consoleCommandProvider,
         private readonly BundleVersionProvider $bundleVersionProvider,
         private readonly MessengerQueueProvider $messengerQueueProvider,
+        private readonly CacheInterface $cache,
         ParameterBagInterface $parameterBag,
     ) {
         $this->tagsEnabled = $parameterBag->get('bytespin_scheduler.tags.enabled');
@@ -60,7 +63,7 @@ class SchedulerCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('Console Command')
             ->setEntityLabelInPlural('Console Commands')
-            ->setHelp('index', 'Bundle version '.$this->bundleVersionProvider->getBundleVersion());
+            ->setHelp('index', 'Bundle version ' . $this->bundleVersionProvider->getBundleVersion());
     }
 
     /**
@@ -68,8 +71,28 @@ class SchedulerCrudController extends AbstractCrudController
      */
     public function configureFields(string $pageName): iterable
     {
+        // Faults of the LAST schedule build (empty until the scheduler worker
+        // builds once): entries the schedule skipped get a red badge with the
+        // reason — new entries cannot be saved invalid anymore (entity-level
+        // ValidSchedulerEntry constraint), this surfaces drift cases such as
+        // a command removed after being scheduled.
+        /** @var array<int, string> $buildFaults */
+        $buildFaults = $this->cache->get(ConsoleJobsScheduler::FAULTS_CACHE_KEY, static fn (): array => []);
+
         $fields = [
             IdField::new('id', 'ID')->hideOnForm()->setSortable(false)->hideOnIndex(),
+            TextField::new('id', 'Health')->onlyOnIndex()->setSortable(false)
+                ->formatValue(static function ($value) use ($buildFaults): string {
+                    $fault = $buildFaults[(int) $value] ?? null;
+
+                    return null === $fault
+                        ? '<span class="badge badge-success">ok</span>'
+                        : sprintf(
+                            '<span class="badge badge-danger" title="%s">invalid</span>',
+                            htmlspecialchars($fault, ENT_QUOTES),
+                        );
+                })
+                ->renderAsHtml(),
             ChoiceField::new('command')->setChoices($this->consoleCommandProvider->listConsoleCommands()),
             ChoiceField::new('messenger_queue')->setChoices($this->messengerQueueProvider->listMessengerQueues()),
             TextField::new('arguments'),
