@@ -48,6 +48,9 @@ class ConsoleCommandSchedulerExtension extends Extension implements PrependExten
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
+        // Store scheduler configuration as parameters
+        $container->setParameter('bytespin_scheduler.process_only_last_missed_run', $config['scheduler']['process_only_last_missed_run']);
+
         // Store tags configuration as parameters
         $container->setParameter('bytespin_scheduler.tags.enabled', $config['tags']['enabled']);
         $container->setParameter('bytespin_scheduler.tags.class', $config['tags']['class']);

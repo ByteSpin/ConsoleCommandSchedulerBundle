@@ -122,6 +122,54 @@ doctrine:
 > - Be sure that ALL your entities are correctly mapped in the 'mappings:' sections of your doctrine.yaml
 
 
+Reliability & Validation (2.1+)
+-------------------------------
+
+A scheduled entry that cannot run must never take the scheduler down. Since 2.1:
+
+- **Input validation** — the `Scheduler` entity carries a class-level constraint: the frequency
+  must build a real recurring message for the chosen execution type. The classic trap (a cron
+  expression such as `0 0 * * 1-5` typed into the *Frequency* interval field) is rejected in the
+  admin form with an explicit hint instead of crashing the scheduler worker at runtime.
+- **Fault isolation** — if an invalid entry still reaches the schedule build (e.g. a command
+  removed after being scheduled), it is skipped with an error log and a
+  `SchedulerEntryFaultedEvent` (`bytespin.scheduler.entry.faulted`); every other entry keeps
+  running. The admin list shows a red **invalid** badge (with the reason) on skipped entries.
+- **Linting** — dry-run every entry through the exact factory the scheduler uses:
+
+```shell
+bin/console bytespin:scheduler:lint
+```
+
+The command exits non-zero when an enabled entry cannot run — wire it into your CI or deploy
+pipeline.
+
+- **Missed runs** — when the scheduler resumes after a downtime it runs at most **one** catch-up
+  occurrence per task (cron-like semantics). Restore the previous replay-everything behavior with:
+
+```yaml
+# config/packages/bytespin_console_command_scheduler.yaml
+bytespin_console_command_scheduler:
+    scheduler:
+        process_only_last_missed_run: false
+```
+
+Hooking your monitoring on skipped entries:
+
+```php
+use ByteSpin\ConsoleCommandSchedulerBundle\Event\SchedulerEntryFaultedEvent;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+
+#[AsEventListener(event: SchedulerEntryFaultedEvent::NAME)]
+final class SchedulerFaultListener
+{
+    public function __invoke(SchedulerEntryFaultedEvent $event): void
+    {
+        // $event->entry is the faulty Scheduler entity, $event->error the cause
+    }
+}
+```
+
 Tags Feature (Optional)
 -----------------------
 
