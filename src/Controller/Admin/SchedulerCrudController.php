@@ -81,18 +81,6 @@ class SchedulerCrudController extends AbstractCrudController
 
         $fields = [
             IdField::new('id', 'ID')->hideOnForm()->setSortable(false)->hideOnIndex(),
-            TextField::new('id', 'Health')->onlyOnIndex()->setSortable(false)
-                ->formatValue(static function ($value) use ($buildFaults): string {
-                    $fault = $buildFaults[(int) $value] ?? null;
-
-                    return null === $fault
-                        ? '<span class="badge badge-success">ok</span>'
-                        : sprintf(
-                            '<span class="badge badge-danger" title="%s">invalid</span>',
-                            htmlspecialchars($fault, ENT_QUOTES),
-                        );
-                })
-                ->renderAsHtml(),
             ChoiceField::new('command')->setChoices($this->consoleCommandProvider->listConsoleCommands()),
             ChoiceField::new('messenger_queue')->setChoices($this->messengerQueueProvider->listMessengerQueues()),
             TextField::new('arguments'),
@@ -128,7 +116,24 @@ class SchedulerCrudController extends AbstractCrudController
                 ->setLabel('Log file')->setHelp('Do not provide the full path, only the log filename'),
             BooleanField::new('send_email')->setLabel('Send Notification?'),
             TextField::new('email')->setLabel('Notif. Email'),
-            TextField::new('job_title')->setLabel('Job Title'),
+            // The health badge rides the job title: a TextField MUST sit on a
+            // string property (EasyAdmin's TextConfigurator reads the RAW
+            // value and throws on anything non-string — an int "id" host
+            // crashed the whole index, 2.1.1). The callable's return is
+            // wrapped in Twig Markup by EasyAdmin, so the HTML renders as-is.
+            TextField::new('job_title')->setLabel('Job Title')
+                ->formatValue(static function ($value, $entity) use ($buildFaults): string {
+                    $title = htmlspecialchars((string) ($value ?? ''), ENT_QUOTES);
+                    $fault = null !== $entity ? ($buildFaults[(int) $entity->getId()] ?? null) : null;
+
+                    return null === $fault
+                        ? $title
+                        : sprintf(
+                            '%s <span class="badge badge-danger" title="%s">invalid</span>',
+                            $title,
+                            htmlspecialchars($fault, ENT_QUOTES),
+                        );
+                }),
         ]);
 
         return $fields;
